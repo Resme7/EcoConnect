@@ -11,7 +11,7 @@ public interface CompanyService {
 
     Company getCompanyById(Long companyId);
 
-    //Company getByUserId(Long userId);
+    Company getByUserId(Long userId);
 
     Company getCompanyByCompanyCode(String companyCode);
 

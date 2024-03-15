@@ -22,7 +22,21 @@ public class DtoToEntity {
 
         return person;
     }
-    public PersonNearbyDTO convertorPersonEntityToPersonNearbyDto(Person person) {
+    public PersonDetailDTO convertorPersonDetailDtoToEntity(Person person, User user) {
+        PersonDetailDTO personDetailDTO = new PersonDetailDTO();
+        personDetailDTO.setId(user.getUserId());
+        personDetailDTO.setRole(user.getRole());
+        personDetailDTO.setPersonAddress(person.getPersonAddress());
+        personDetailDTO.setNumberPhone(person.getPhoneNumberPerson());
+        personDetailDTO.setEmail(user.getEmail());
+        personDetailDTO.setFirstName(person.getFirstName());
+        personDetailDTO.setLastName(person.getLastName());
+        personDetailDTO.setLatitude(person.getLatitude());
+        personDetailDTO.setLongitude(person.getLongitude());
+
+        return personDetailDTO;
+    }
+    public PersonNearbyDTO convertorPersonEntityToPersonNearbyDTO(Person person) {
         PersonNearbyDTO personNearbyDTO = new PersonNearbyDTO();
         personNearbyDTO.setName(person.getFirstName() + " " + person.getLastName());
         personNearbyDTO.setLongitude(person.getLongitude());
@@ -48,7 +62,7 @@ public class DtoToEntity {
         company.setCompanyCode(companyDTO.getCompanyCode());
         return company;
     }
-    public CompanyDetailDTO convertorCompanyDetailDtoToCompanyEntity(Company company, User user) {
+    public CompanyDetailDTO convertorCompanyDetailDtoToEntity(Company company, User user) {
         CompanyDetailDTO companyDetailsDto = new CompanyDetailDTO();
         companyDetailsDto.setId(user.getUserId());
         companyDetailsDto.setRole(user.getRole());
@@ -116,6 +130,49 @@ public class DtoToEntity {
         request.setMaterial(material);
 
         return request;
+    }
+    public RequestListDTO convertorRequestListEntityToRequestListDTO(Request request) {
+        RequestListDTO requestListDTO = new RequestListDTO();
+
+        requestListDTO.setId(request.getId());
+        requestListDTO.setDateRequestCreated(request.getDateRequestCreated());
+        requestListDTO.setQuantity(request.getQuantity());
+        requestListDTO.setStatus(request.getStatus());
+        requestListDTO.setUnit(request.getUnit());
+        requestListDTO.setMaterialName(request.getMaterial().getMaterialName());
+
+        return requestListDTO;
+    }
+    public RequestListDTO convertorRequestEntityToRequestsListDTOAccepted(Request request) {
+        RequestListDTO requestListDTO = this.convertorRequestListEntityToRequestListDTO(request);
+        requestListDTO.setId(request.getId());
+        requestListDTO.setDateRequestAccepted(request.getDateRequestAccepted());
+        requestListDTO.setCompanyName(request.getCompany().getCompanyName());
+        return requestListDTO;
+    }
+    public RequestListDTO convertorRequestEntityToRequestListDTOCompleted(Request request) {
+        RequestListDTO requestsListDTO = this.convertorRequestListEntityToRequestListDTO(request);
+        requestsListDTO.setId(request.getId());
+        requestsListDTO.setDateRequestAccepted(request.getDateRequestAccepted());
+        requestsListDTO.setCompanyName(request.getCompany().getCompanyName());
+        return requestsListDTO;
+    }
+
+
+    public OrderListDTO convertorRequestEntityToOrderListDTO(Request request) {
+        OrderListDTO ordersListDto = new OrderListDTO();
+
+        ordersListDto.setId(request.getId());
+        ordersListDto.setDateCreated(request.getDateRequestCreated());
+        ordersListDto.setDateCollection(request.getDateRequestAccepted());
+        ordersListDto.setAddress(request.getPerson().getPersonAddress());
+        ordersListDto.setPhoneNumber(request.getPerson().getPhoneNumberPerson());
+        ordersListDto.setMaterialName(request.getMaterial().getMaterialName());
+        ordersListDto.setQuantity(request.getQuantity());
+        ordersListDto.setPersonName(request.getPerson().getFirstName() + " " + request.getPerson().getLastName());
+        ordersListDto.setUnit(request.getUnit());
+
+        return ordersListDto;
     }
 
 

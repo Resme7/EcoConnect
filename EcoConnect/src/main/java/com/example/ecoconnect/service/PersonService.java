@@ -9,4 +9,6 @@ public interface PersonService {
     Person getPersonByPhoneNumberPerson(String phoneNumberPerson);
     Person savePerson(Person person);
 
+    Person getByUserId(Long userId);
+
 }

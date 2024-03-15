@@ -18,6 +18,10 @@ public class CompanyServiceImplement implements CompanyService {
     public List<Company> getAllCompanies(){
         return companyRepository.findAll();
     }
+    @Override
+    public Company getByUserId(Long userId) {
+        return companyRepository.findByUserUserId(userId);
+    }
 
     @Override
     public Company getCompanyById(Long companyId){

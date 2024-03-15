@@ -7,6 +7,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @Entity
@@ -28,10 +30,10 @@ public class Person {
     @Column(name = "person_address", nullable = false)
     private String personAddress;
 
-    @Column(name = "person_latitude", nullable = false)
+    @Column(name = "person_latitude")
     private String latitude;
 
-    @Column(name = "person_longitude", nullable = false)
+    @Column(name = "person_longitude")
     private String longitude;
 
     @Column(name = "person_number_phone", nullable = false)
@@ -39,5 +41,8 @@ public class Person {
 
     @OneToOne
     private User user;
+
+    @OneToMany(mappedBy = "person", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Request> requestList;
 
 }

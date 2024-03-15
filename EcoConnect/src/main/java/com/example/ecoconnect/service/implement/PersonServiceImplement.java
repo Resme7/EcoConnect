@@ -2,6 +2,7 @@ package com.example.ecoconnect.service.implement;
 
 import com.example.ecoconnect.entities.Person;
 import com.example.ecoconnect.repository.PersonRepository;
+import com.example.ecoconnect.repository.RequestRepository;
 import com.example.ecoconnect.service.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,9 @@ public class PersonServiceImplement implements PersonService {
 
     @Autowired
     PersonRepository personRepository;
+
+    @Autowired
+    RequestRepository requestRepository;
 
     @Override
     public Person getPersonById(Long idPerson){
@@ -24,5 +28,10 @@ public class PersonServiceImplement implements PersonService {
     @Override
     public Person savePerson(Person person){
         return personRepository.save(person);
+    }
+
+    @Override
+    public Person getByUserId(Long userId) {
+        return personRepository.findByUserUserId(userId);
     }
 }
