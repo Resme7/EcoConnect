@@ -1,11 +1,13 @@
 package com.example.ecoconnect.dto;
 
 import com.example.ecoconnect.entities.Role;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CompanyDetailDTO {
     private Long id;
     private String companyName;

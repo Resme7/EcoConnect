@@ -1,11 +1,13 @@
 package com.example.ecoconnect.dto;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CollectionStationDTO {
     private String name;
     private String latitude;

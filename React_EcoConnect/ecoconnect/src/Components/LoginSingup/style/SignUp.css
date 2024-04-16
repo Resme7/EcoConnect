@@ -1,0 +1,90 @@
+.signup-container {
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        width: 600px;
+        margin-top: 50px;
+        background: #fff;
+        padding-bottom: 30px;
+    
+  }
+  
+  .header{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    margin-top: 10px;
+}
+.text{
+    color: #134611;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.underline{
+    width: 61px;
+    height: 6px;
+    background: #134611;
+    border-radius: 9px;
+}
+.container-label{
+    margin-top: 50px;
+    margin-left: 150px;
+    display: flex;
+}
+.textH3{
+    color: #134611;
+    font-size: 20px;
+    font-weight: 700;
+    margin-left: 230px;
+}
+.form{
+    margin-top: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+  
+.choose {
+    margin-left: 50px;
+    display: block;
+    margin-right: 10px;
+  }
+.input{
+    display: flex;
+    align-items: center;
+    margin: auto;
+    width: 480px;
+    height: 40px;
+    background: #eaeaea;
+    border-radius: 6px;
+}
+  
+  input[type="radio"] {
+    margin-right: 5px;
+  }
+
+  .submit-button{
+    display: flex;
+    gap: 30px;
+    margin: 60px auto;
+    margin-left: 230px;
+}
+.submit{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 120px;
+    height: 29px;
+    color:#fff;
+    background: #134611;
+    border-radius: 50px;
+    font-size: 19px;
+    font-weight: 700;
+    cursor: pointer;
+}
+  
+
+  

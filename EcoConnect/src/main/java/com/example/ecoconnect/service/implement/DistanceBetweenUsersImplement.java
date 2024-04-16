@@ -7,10 +7,12 @@ import com.example.ecoconnect.repository.CompanyRepository;
 import com.example.ecoconnect.repository.PersonRepository;
 import com.example.ecoconnect.service.DistanceBetweenUsers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class DistanceBetweenUsersImplement implements DistanceBetweenUsers {
     private final static Double RADIUS = 3d;
     @Autowired
@@ -36,18 +38,28 @@ public class DistanceBetweenUsersImplement implements DistanceBetweenUsers {
     @Override
     public List<Person> getAllNearbyPersonWithStatusOnHold(Double latitude, Double longitude) {
         List<Person> nearbyPerson = new ArrayList<>();
-        for(Person person : personRepository.findAllPersonByRequestStatus(Status.ON_HOLD)){
-            Double latitudePerson = Double.parseDouble(person.getLatitude());
-            Double longitudePerson = Double.parseDouble(person.getLongitude());
+        for (Person person : personRepository.findAllPersonByRequestStatus(Status.ON_HOLD)) {
+            String personLatitude = person.getLatitude();
+            String personLongitude = person.getLongitude();
 
-            if(CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudePerson, longitudePerson) < RADIUS &&
-                    CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudePerson, longitudePerson) !=0){
-                nearbyPerson.add(person);
+            if (personLatitude != null && personLongitude != null) {
+                try {
+                    Double latitudePerson = Double.parseDouble(personLatitude);
+                    Double longitudePerson = Double.parseDouble(personLongitude);
+
+                    if (CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudePerson, longitudePerson) < RADIUS &&
+                            CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudePerson, longitudePerson) != 0) {
+                        nearbyPerson.add(person);
+                    }
+                } catch (NumberFormatException e) {
+                    System.err.println("Error converting latitude or longitude to Double: " + e.getMessage());
+                }
             }
         }
 
         return nearbyPerson;
     }
+
 
     @Override
     public List<Company> getAllNearbyCompany(Double latitude, Double longitude) {

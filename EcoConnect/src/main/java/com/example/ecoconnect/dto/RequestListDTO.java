@@ -1,13 +1,15 @@
 package com.example.ecoconnect.dto;
 
 import com.example.ecoconnect.entities.Status;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Date;
 
 @Setter
 @Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RequestListDTO {
     private Long id;
     private Date dateRequestCreated;

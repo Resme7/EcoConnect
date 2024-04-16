@@ -2,177 +2,186 @@ package com.example.ecoconnect.dto.convertor;
 
 import com.example.ecoconnect.dto.*;
 import com.example.ecoconnect.entities.*;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
 
+@Builder
+@NoArgsConstructor
 public class DtoToEntity {
-    public Person convertorPersonDtoToEntity(PersonDTO personDTO){
-        Person person = new Person();
-        person.setFirstName(personDTO.getFirstName());
-        person.setLastName(personDTO.getLastName());
-        person.setPhoneNumberPerson(personDTO.getNumberPhone());
-        person.setLatitude(personDTO.getLatitude());
-        person.setLongitude(person.getLongitude());
-        StringBuilder addressFull = new StringBuilder();
-        addressFull.append(personDTO.getStreet()).append(", ").append(personDTO.getNumber()).append(", ")
-                .append(personDTO.getBuilding()).append(", ").append(personDTO.getEntrance()).append(", ")
-                .append(personDTO.getApartNumber());
-        person.setPersonAddress(addressFull.toString());
-
-        return person;
+    public Person convertorPersonDtoToEntity(PersonDTO personDTO) {
+        return Person.builder()
+                .firstName(personDTO.getFirstName())
+                .lastName(personDTO.getLastName())
+                .phoneNumberPerson(personDTO.getNumberPhone())
+                .latitude(personDTO.getLatitude())
+                .longitude(personDTO.getLongitude())
+                .personAddress(buildAddress(personDTO))
+                .build();
     }
+
+    private String buildAddress(PersonDTO personDTO) {
+        return new StringBuilder()
+                .append(personDTO.getStreet()).append(", ")
+                .append(personDTO.getNumber()).append(", ")
+                .append(personDTO.getBuilding()).append(", ")
+                .append(personDTO.getEntrance()).append(", ")
+                .append(personDTO.getApartNumber())
+                .toString();
+    }
+
     public PersonDetailDTO convertorPersonDetailDtoToEntity(Person person, User user) {
-        PersonDetailDTO personDetailDTO = new PersonDetailDTO();
-        personDetailDTO.setId(user.getUserId());
-        personDetailDTO.setRole(user.getRole());
-        personDetailDTO.setPersonAddress(person.getPersonAddress());
-        personDetailDTO.setNumberPhone(person.getPhoneNumberPerson());
-        personDetailDTO.setEmail(user.getEmail());
-        personDetailDTO.setFirstName(person.getFirstName());
-        personDetailDTO.setLastName(person.getLastName());
-        personDetailDTO.setLatitude(person.getLatitude());
-        personDetailDTO.setLongitude(person.getLongitude());
-
-        return personDetailDTO;
+        return PersonDetailDTO.builder()
+                .id(user.getUserId())
+                .role(user.getRole())
+                .personAddress(person.getPersonAddress())
+                .numberPhone(person.getPhoneNumberPerson())
+                .email(user.getEmail())
+                .firstName(person.getFirstName())
+                .lastName(person.getLastName())
+                .latitude(person.getLatitude())
+                .longitude(person.getLongitude())
+                .build();
     }
-    public PersonNearbyDTO convertorPersonEntityToPersonNearbyDTO(Person person) {
-        PersonNearbyDTO personNearbyDTO = new PersonNearbyDTO();
-        personNearbyDTO.setName(person.getFirstName() + " " + person.getLastName());
-        personNearbyDTO.setLongitude(person.getLongitude());
-        personNearbyDTO.setLatitude(person.getLatitude());
-        personNearbyDTO.setRole(person.getUser().getRole());
 
-        return personNearbyDTO;
+    public PersonNearbyDTO convertorPersonEntityToPersonNearbyDTO(Person person) {
+        return PersonNearbyDTO.builder()
+                .name(person.getFirstName() + " " + person.getLastName())
+                .longitude(person.getLongitude())
+                .latitude(person.getLatitude())
+                .role(person.getUser().getRole())
+                .build();
     }
 
     public Company convertorCompanyDtoToEntity(CompanyDTO companyDTO) {
-        Company company = new Company();
-        company.setCompanyNumberPhone(companyDTO.getCompanyNumberPhone());
-        company.setName(companyDTO.getCompanyName());
-        StringBuilder fullAddress = new StringBuilder();
-        fullAddress.append(companyDTO.getStreet()).append(", ").append(companyDTO.getNumber()).append(", ")
+        return Company.builder()
+                .companyNumberPhone(companyDTO.getCompanyNumberPhone())
+                .companyName(companyDTO.getCompanyName())
+                .companyAddress(buildCompanyAddress(companyDTO))
+                .description(companyDTO.getDescriptionCompany())
+                .latitude(companyDTO.getLatitude())
+                .longitude(companyDTO.getLongitude())
+                .companyCode(companyDTO.getCompanyCode())
+                .build();
+    }
+
+    private String buildCompanyAddress(CompanyDTO companyDTO) {
+        return new StringBuilder()
+                .append(companyDTO.getStreet()).append(", ")
+                .append(companyDTO.getNumber()).append(", ")
                 .append(companyDTO.getBuilding()).append(", ")
-                .append(companyDTO.getEntrance()).append(", ").
-                append(companyDTO.getApartNumber());
-        company.setCompanyAddress(fullAddress.toString());
-        company.setDescription(companyDTO.getDescriptionCompany());
-        company.setLatitude(companyDTO.getLatitude());
-        company.setLongitude(companyDTO.getLongitude());
-        company.setCompanyCode(companyDTO.getCompanyCode());
-        return company;
+                .append(companyDTO.getEntrance()).append(", ")
+                .append(companyDTO.getApartNumber())
+                .toString();
     }
+
     public CompanyDetailDTO convertorCompanyDetailDtoToEntity(Company company, User user) {
-        CompanyDetailDTO companyDetailsDto = new CompanyDetailDTO();
-        companyDetailsDto.setId(user.getUserId());
-        companyDetailsDto.setRole(user.getRole());
-        companyDetailsDto.setCompanyName(company.getCompanyName());
-        companyDetailsDto.setCompanyAddress(company.getCompanyAddress());
-        companyDetailsDto.setCompanyNumberPhone(company.getCompanyNumberPhone());
-        companyDetailsDto.setEmail(user.getEmail());
-        companyDetailsDto.setDescription(company.getDescription());
-        companyDetailsDto.setCompanyCode(company.getCompanyCode());
-        companyDetailsDto.setLatitude(company.getLatitude());
-        companyDetailsDto.setLongitude(company.getLongitude());
-
-        return companyDetailsDto;
+        return CompanyDetailDTO.builder()
+                .id(user.getUserId())
+                .role(user.getRole())
+                .companyName(company.getCompanyName())
+                .companyAddress(company.getCompanyAddress())
+                .companyNumberPhone(company.getCompanyNumberPhone())
+                .email(user.getEmail())
+                .description(company.getDescription())
+                .companyCode(company.getCompanyCode())
+                .latitude(company.getLatitude())
+                .longitude(company.getLongitude())
+                .build();
     }
+
     public CompanyDetailPracticeDTO convertorCompanyEntityToCompanyDetailPracticeDTO(Company company, List<String> materials) {
-        CompanyDetailPracticeDTO companyDetailPracticeDTO = new CompanyDetailPracticeDTO();
-        companyDetailPracticeDTO.setAddress(company.getCompanyAddress());
-        companyDetailPracticeDTO.setCompanyName(company.getName());
-        companyDetailPracticeDTO.setCompanyNumberPhone(company.getCompanyNumberPhone());
-        companyDetailPracticeDTO.setEmail(company.getUser().getEmail());
-        companyDetailPracticeDTO.setMaterialList(materials);
-        companyDetailPracticeDTO.setLatitude(company.getLatitude());
-        companyDetailPracticeDTO.setLongitude(company.getLongitude());
-        companyDetailPracticeDTO.setRole(company.getUser().getRole());
-
-        return companyDetailPracticeDTO;
+        return CompanyDetailPracticeDTO.builder()
+                .address(company.getCompanyAddress())
+                .companyName(company.getName())
+                .companyNumberPhone(company.getCompanyNumberPhone())
+                .email(company.getUser().getEmail())
+                .materialList(materials)
+                .latitude(company.getLatitude())
+                .longitude(company.getLongitude())
+                .role(company.getUser().getRole())
+                .build();
     }
+
     public CollectionStationDTO convertorCompanyEntityToCollectionStationDto(Company company) {
-        CollectionStationDTO collectionStationsDto = new CollectionStationDTO();
-
-        collectionStationsDto.setName(company.getName());
-        collectionStationsDto.setLatitude(company.getLatitude());
-        collectionStationsDto.setLongitude(company.getLongitude());
-
-        return collectionStationsDto;
+        return CollectionStationDTO.builder()
+                .name(company.getName())
+                .latitude(company.getLatitude())
+                .longitude(company.getLongitude())
+                .build();
     }
 
     public User convertorUserDtoToUserEntity(UserDTO userDto) {
-        User user = new User();
-        user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
-        user.setRole(userDto.getRole());
-        return user;
+        return User.builder()
+                .email(userDto.getEmail())
+                .password(userDto.getPassword())
+                .role(userDto.getRole())
+                .build();
     }
 
     public Material convertorMaterialDtoToMaterialEntity(MaterialDTO materialDto) {
-        Material material = new Material();
-        material.setMaterialName(materialDto.getMaterialName());
-        return material;
+        return Material.builder()
+                .materialName(materialDto.getMaterialName())
+                .build();
     }
 
     public MaterialDTO convertorMaterialEntityToMaterialDto(Material material) {
-        MaterialDTO materialDto = new MaterialDTO();
-        materialDto.setMaterialName(material.getMaterialName());
-        return materialDto;
+        return MaterialDTO.builder()
+                .materialName(material.getMaterialName())
+                .build();
     }
+
     public Request convertRequestDtoToRequestEntity(RequestDTO requestDto, Material material) {
-        Request request = new Request();
-        Date dateRequestCreated = new Date();
-        request.setDateRequestCreated(dateRequestCreated);
-        request.setStatus(Status.ON_HOLD);
-        request.setQuantity(requestDto.getQuantity());
-        request.setUnit(requestDto.getUnit());
-
-        request.setMaterial(material);
-
-        return request;
+        return Request.builder()
+                .dateRequestCreated(new Date())
+                .status(Status.ON_HOLD)
+                .quantity(requestDto.getQuantity())
+                .unit(requestDto.getUnit())
+                .material(material)
+                .build();
     }
+
     public RequestListDTO convertorRequestListEntityToRequestListDTO(Request request) {
-        RequestListDTO requestListDTO = new RequestListDTO();
-
-        requestListDTO.setId(request.getId());
-        requestListDTO.setDateRequestCreated(request.getDateRequestCreated());
-        requestListDTO.setQuantity(request.getQuantity());
-        requestListDTO.setStatus(request.getStatus());
-        requestListDTO.setUnit(request.getUnit());
-        requestListDTO.setMaterialName(request.getMaterial().getMaterialName());
-
-        return requestListDTO;
+        return RequestListDTO.builder()
+                .id(request.getId())
+                .dateRequestCreated(request.getDateRequestCreated())
+                .quantity(request.getQuantity())
+                .status(request.getStatus())
+                .unit(request.getUnit())
+                .materialName(request.getMaterial().getMaterialName())
+                .build();
     }
+
     public RequestListDTO convertorRequestEntityToRequestsListDTOAccepted(Request request) {
-        RequestListDTO requestListDTO = this.convertorRequestListEntityToRequestListDTO(request);
-        requestListDTO.setId(request.getId());
-        requestListDTO.setDateRequestAccepted(request.getDateRequestAccepted());
-        requestListDTO.setCompanyName(request.getCompany().getCompanyName());
-        return requestListDTO;
-    }
-    public RequestListDTO convertorRequestEntityToRequestListDTOCompleted(Request request) {
-        RequestListDTO requestsListDTO = this.convertorRequestListEntityToRequestListDTO(request);
-        requestsListDTO.setId(request.getId());
-        requestsListDTO.setDateRequestAccepted(request.getDateRequestAccepted());
-        requestsListDTO.setCompanyName(request.getCompany().getCompanyName());
-        return requestsListDTO;
+        return RequestListDTO.builder()
+                .id(request.getId())
+                .dateRequestAccepted(request.getDateRequestAccepted())
+                .companyName(request.getCompany().getCompanyName())
+                .build();
     }
 
+    public RequestListDTO convertorRequestEntityToRequestListDTOCompleted(Request request) {
+        return RequestListDTO.builder()
+                .id(request.getId())
+                .dateRequestAccepted(request.getDateRequestAccepted())
+                .companyName(request.getCompany().getCompanyName())
+                .build();
+    }
 
     public OrderListDTO convertorRequestEntityToOrderListDTO(Request request) {
-        OrderListDTO ordersListDto = new OrderListDTO();
-
-        ordersListDto.setId(request.getId());
-        ordersListDto.setDateCreated(request.getDateRequestCreated());
-        ordersListDto.setDateCollection(request.getDateRequestAccepted());
-        ordersListDto.setAddress(request.getPerson().getPersonAddress());
-        ordersListDto.setPhoneNumber(request.getPerson().getPhoneNumberPerson());
-        ordersListDto.setMaterialName(request.getMaterial().getMaterialName());
-        ordersListDto.setQuantity(request.getQuantity());
-        ordersListDto.setPersonName(request.getPerson().getFirstName() + " " + request.getPerson().getLastName());
-        ordersListDto.setUnit(request.getUnit());
-
-        return ordersListDto;
+        return OrderListDTO.builder()
+                .id(request.getId())
+                .dateCreated(request.getDateRequestCreated())
+                .dateCollection(request.getDateRequestAccepted())
+                .address(request.getPerson().getPersonAddress())
+                .phoneNumber(request.getPerson().getPhoneNumberPerson())
+                .materialName(request.getMaterial().getMaterialName())
+                .quantity(request.getQuantity())
+                .personName(request.getPerson().getFirstName() + " " + request.getPerson().getLastName())
+                .unit(request.getUnit())
+                .build();
     }
 
 

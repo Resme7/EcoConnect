@@ -1,19 +1,17 @@
 package com.example.ecoconnect.dto;
 
 import com.example.ecoconnect.entities.Role;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class PersonDetailDTO {
     private Long id;
     private String firstName;
-    private String LastName;
+    private String lastName;
     private String email;
     private String personAddress;
     private String numberPhone;

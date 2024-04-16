@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @CrossOrigin
+@RestController
 @RequestMapping(value = "/api/users")
 public class UserController {
     @Autowired
@@ -56,6 +57,100 @@ public class UserController {
 
         validations.put("Results", "The user will be created with succes.");
         return new ResponseEntity<>(validations, HttpStatus.OK);
+    }
+    @PostMapping(value = "/login")
+    public ResponseEntity login(@RequestBody(required = false) UserLoginDTO userLoginDTO) {
+
+        if (checkLoginFields(userLoginDTO))
+            return new ResponseEntity<>(MessageContent.LOGIN_ERROR, HttpStatus.BAD_REQUEST);
+
+        User user = userService.getByEmail(userLoginDTO.getEmail());
+
+        return checkUserExistence(userLoginDTO, user);
+    }
+    @GetMapping
+    public ResponseEntity getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        List<UserDetailMapDTO> userDetailMapDTOS = new ArrayList<>();
+
+        setUserMapDetails(users, userDetailMapDTOS);
+
+        return new ResponseEntity<>(userDetailMapDTOS, HttpStatus.OK);
+    }
+    @GetMapping(value = "/{id}")
+    public ResponseEntity getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+
+        if (user == null) {
+            Map<String, String> userNullMessage = new HashMap<>();
+            userNullMessage.put("message", MessageContent.USER_NOT_FOUND);
+            return new ResponseEntity<>(userNullMessage, HttpStatus.OK);
+        }
+
+        ResponseEntity userDetailDTO = returnUserDetailsByRole(user);
+
+        if (userDetailDTO != null)
+            return userDetailDTO;
+        else
+            return new ResponseEntity<>("Bad request.", HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping(value = "/nearby-users-for-person/{id}")
+    public ResponseEntity getNearbyUsersForPerson(@PathVariable Long id) {
+        Person person = personService.getByUserId(id);
+        if (checkPersonExist(person)) return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
+        Double personLatitude = Double.parseDouble(person.getLatitude());
+        Double personLongitude = Double.parseDouble(person.getLongitude());
+        List<PersonNearbyDTO> personNearbyDTOS = setNearbyPerson(personLatitude, personLongitude);
+        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOS = setNearbyCompanies(personLatitude, personLongitude);
+
+        List<Object> combinedList = new ArrayList<>();
+        combinedList.addAll(companyDetailPracticeDTOS);
+        combinedList.addAll(personNearbyDTOS);
+
+        return new ResponseEntity<>(combinedList, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/nearby-users-for-company/{id}")
+    public ResponseEntity getNearbyUsersForCompany(@PathVariable Long id) {
+        Company company = companyService.getByUserId(id);
+        if (checkCompanyExist(company)) return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
+        Double companyLatitude = Double.parseDouble(company.getLatitude());
+        Double companyLongitude = Double.parseDouble(company.getLongitude());
+        List<PersonNearbyDTO> personNearbyDTOS = setNearbyPerson(companyLatitude, companyLongitude);
+        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOS = setNearbyCompanies(companyLatitude, companyLongitude);
+
+        List<Object> combinedList = new ArrayList<>();
+        combinedList.addAll(companyDetailPracticeDTOS);
+        combinedList.addAll(personNearbyDTOS);
+
+        return new ResponseEntity<>(combinedList, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/nearby-users-after-moving")
+    public ResponseEntity getNearbyUsersForAfterMapMoving(@RequestParam Double latitude, @RequestParam Double longitude, @RequestParam Long id) {
+        Map<String, String> message = new HashMap<>();
+        message.put("error", "Invalid latitude and longitude.");
+        if (checkLatitudeAndLongitude(latitude, longitude))
+            return new ResponseEntity<>(message, HttpStatus.OK);
+        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOList = setNearbyCompanies(latitude, longitude);
+        List<PersonNearbyDTO> personNearbyDTOS = setNearbyPerson(latitude, longitude);
+
+        removeUserWithLocationLoggedIn(id, companyDetailPracticeDTOList, personNearbyDTOS);
+
+        List<Object> combinedList = new ArrayList<>();
+        combinedList.addAll(companyDetailPracticeDTOList);
+        combinedList.addAll(personNearbyDTOS);
+
+        return new ResponseEntity<>(combinedList, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/companies/hover-info")
+    public ResponseEntity getAllCompaniesWithHoverInfo() {
+        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOList = new ArrayList<>();
+        DtoToEntity convertor = new DtoToEntity();
+        setCompaniesPracticeInfos(companyDetailPracticeDTOList, convertor);
+        return new ResponseEntity(companyDetailPracticeDTOList, HttpStatus.OK);
     }
 
     private void setUserMapDetails(List<User> users, List<UserDetailMapDTO> userDetailMapDTOS) {
@@ -130,9 +225,9 @@ public class UserController {
 //        return userLoginDTO.getEmail().equals(email) && encryptPwd.equals(password);
 //    }
 
-    private List<PersonNearbyDTO> setNearbyCitizens(Double latitude, Double longitude) {
+    private List<PersonNearbyDTO> setNearbyPerson(Double latitude, Double longitude) {
         List<Person> nearbyPerson = distanceBetweenUsers.getAllNearbyPersonWithStatusOnHold(latitude, longitude);
-        List<PersonNearbyDTO> personnNearbyDTOList = new ArrayList<>();
+        List<PersonNearbyDTO> personNearbyDTOList = new ArrayList<>();
         DtoToEntity convertor = new DtoToEntity();
 
         for (Person person : nearbyPerson) {
@@ -150,9 +245,9 @@ public class UserController {
 
             personNearbyDTO.setRequestsMaterialsPerson(materials);
             personNearbyDTO.setId(user.getUserId());
-            personnNearbyDTOList.add(personNearbyDTO);
+            personNearbyDTOList.add(personNearbyDTO);
         }
-        return personnNearbyDTOList;
+        return personNearbyDTOList;
     }
 
     private List<CompanyDetailPracticeDTO> setNearbyCompanies(Double latitude, Double longitude) {
