@@ -1,0 +1,23 @@
+.header-general {
+    background-color: #E8FCCF; 
+    padding: 60px;
+  }
+  .logo {
+    height: 60px;
+    display: block;
+    position: fixed;
+    top: 0; /* Poziționează logo-ul în partea de sus a paginii */
+    left: 0; /* Poziționează logo-ul în stânga paginii */
+    margin: 20px;
+  }
+
+.page-container {
+    display: flex;
+    flex-direction: column;
+    margin: auto;
+    width: 1200px;
+    margin-top: 50px;
+    background: #fff;
+    padding-bottom: 30px;
+
+}

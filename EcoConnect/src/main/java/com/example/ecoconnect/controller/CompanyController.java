@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/api/companies")
 public class CompanyController {
 

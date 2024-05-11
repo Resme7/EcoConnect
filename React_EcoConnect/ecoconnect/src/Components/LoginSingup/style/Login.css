@@ -3,7 +3,7 @@
     flex-direction: column;
     margin: auto;
     width: 600px;
-    margin-top: 200px;
+    margin-top: 150px;
     background: #fff;
     padding-bottom: 30px;
 }
@@ -13,12 +13,13 @@
     align-items: center;
     gap: 9px;
     width: 100%;
-    margin-top: 30px;
+    margin-top: 40px;
 }
 .text{
     color: #134611;
     font-size: 48px;
     font-weight: 700;
+    margin-top: 40px;
 }
 
 .underline{

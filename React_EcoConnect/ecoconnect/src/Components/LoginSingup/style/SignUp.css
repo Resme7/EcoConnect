@@ -85,6 +85,33 @@
     font-weight: 700;
     cursor: pointer;
 }
+.TextH3{
+    color: #134611;
+    font-size: 20px;
+    font-weight: 700;
+    margin-left: 230px;
+}
+.material {
+    display: flex;
+    margin-left: 100px;
+    margin-bottom: 30px;
+  }
+  
+  .material label {
+    margin-right: 20px; /* Spațiu între casetele de selectare */
+  }
+  
+.checkbox-label {
+    display: block;
+    margin-bottom: 5px;
+    color: #848282;
+    text-align: center;
+  }
+  
+  .checkbox-label input[type="checkbox"] {
+    margin-right: 5px;
+    vertical-align: middle;
+  }
   
 
   

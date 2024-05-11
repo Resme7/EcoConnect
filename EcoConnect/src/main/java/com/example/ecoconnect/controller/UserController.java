@@ -11,12 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import java.util.*;
 
-@CrossOrigin
+
 @RestController
 @RequestMapping(value = "/api/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
     @Autowired
     private PersonService personService;
