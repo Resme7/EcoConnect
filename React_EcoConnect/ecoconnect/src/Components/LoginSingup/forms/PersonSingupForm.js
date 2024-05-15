@@ -56,9 +56,7 @@ function PersonSignupForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // Validare conform schemei definite
       await personSchema.validate(formData, { abortEarly: false });
-      // Trimitere către server
       const response = await fetch('http://localhost:8082/api/people', {
         method: 'POST',
         headers: {
@@ -77,7 +75,6 @@ function PersonSignupForm() {
       }, 3000);
     } catch (error) {
       if (error.name === 'ValidationError') {
-        // Gestionare erori de validare
         const validationErrors = {};
         error.inner.forEach(err => {
           validationErrors[err.path] = err.message;
@@ -92,7 +89,6 @@ function PersonSignupForm() {
 
   useEffect(() => {
     if (redirect) {
-      // Redirecționează utilizatorul către pagina principală după înregistrare
       window.location.href = '/';
     }
   }, [redirect]);

@@ -42,7 +42,7 @@ public class RequestServiceImplement implements RequestService {
 
     @Override
     public List<Request> getAllByCompanyUserIdAndStatus(Long id, Status status) {
-        return requestRepository.findAllByCompanyUserUserIdAndAndStatus(id, status);
+        return requestRepository.findAllByCompanyUserUserIdAndStatus(id, status);
     }
 
     @Override

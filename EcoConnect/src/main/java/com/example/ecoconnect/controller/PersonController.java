@@ -69,9 +69,9 @@ public class PersonController  {
     public ResponseEntity getPersonById(@PathVariable Long id){
         Person person = personService.getPersonById(id);
         if (person == null) {
-            Map<String, String> citizenNullMessage = new HashMap<>();
-            citizenNullMessage.put("message", "Person not found");
-            return new ResponseEntity<>(citizenNullMessage, HttpStatus.NOT_FOUND);
+            Map<String, String> personNullMessage = new HashMap<>();
+            personNullMessage.put("message", "Person not found");
+            return new ResponseEntity<>(personNullMessage, HttpStatus.NOT_FOUND);
         } else {
             return new ResponseEntity<>(person, HttpStatus.OK);
         }

@@ -2,7 +2,7 @@ package com.example.ecoconnect.util;
 
 public class MessageContent {
     public final static String USER_NOT_FOUND = "User not found.";
-    public final static String CITIZEN_NOT_FOUND = "Citizen not found.";
+    public final static String PERSON_NOT_FOUND = "Person not found.";
     public final static String REQUEST_NOT_FOUND = "Request not found";
     public final static String REQUEST_UPDATED = "Request updated.";
     public final static String REQUEST_DELETED = "Request deleted.";

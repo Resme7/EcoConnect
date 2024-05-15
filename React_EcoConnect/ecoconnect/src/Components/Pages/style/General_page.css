@@ -1,4 +1,4 @@
-.header-general {
+/* .header-general {
     background-color: #E8FCCF; 
     padding: 60px;
   }
@@ -6,10 +6,10 @@
     height: 60px;
     display: block;
     position: fixed;
-    top: 0; /* Poziționează logo-ul în partea de sus a paginii */
-    left: 0; /* Poziționează logo-ul în stânga paginii */
+    top: 0;
+    left: 0; 
     margin: 20px;
-  }
+  } */
 
 .page-container {
     display: flex;

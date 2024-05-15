@@ -186,8 +186,8 @@ function CompanySignupForm() {
             Plastic
           </label>
           <label className="checkbox-label">
-            <input type="checkbox" name="materialName" value="Cauciuc" checked={formData.materialName.includes('Cauciuc')} onChange={handleChange} />
-            Rubber
+            <input type="checkbox" name="materialName" value="Glass" checked={formData.materialName.includes('Glass')} onChange={handleChange} />
+            Glass
           </label>
         </div>
 

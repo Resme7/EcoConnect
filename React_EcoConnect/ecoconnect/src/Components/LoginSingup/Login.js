@@ -1,13 +1,14 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../Pages/util/UserContext'; 
 import './style/Login.css';
 import email_icon from '../Assets/email.png';
 import password_icon from '../Assets/password.png';
-import { useNavigate } from 'react-router-dom';
 
 function Login() {
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const { setUser } = useUser(); 
 
     const handleLogin = () => {
         const email = document.getElementById('email').value;
@@ -30,19 +31,16 @@ function Login() {
             return response.json();
         })
         .then(data => {
-            // Verificăm rolul utilizatorului
+            setUser({ id: data.id, role: data.role }); 
             if (data.role === 'Company') {
-                // Dacă este o companie, redirecționăm către pagina companiei
                 navigate('/company');
-                console.log(data)
-            } else if(data.role === 'Person'){
-                // Altfel, redirecționăm către pagina utilizatorului obișnuit
+            } else if (data.role === 'Person') {
                 navigate('/person');
-                console.log(data)
             }
         })
         .catch(error => {
             setError('Login failed. Please try again.');
+            console.error('Login Error:', error);
         });
     };
 
@@ -54,18 +52,21 @@ function Login() {
             </div>
             <div className='inputs'>
                 <div className='input'>
-                    <img src={email_icon} alt='' />
+                    <img src={email_icon} alt='Email Icon' />
                     <input type='email' id='email' placeholder='Email'/>
                 </div>
                 <div className='input'>
-                    <img src={password_icon} alt='' />
+                    <img src={password_icon} alt='Password Icon' />
                     <input type='password' id='password' placeholder='Password'/>
                 </div>
             </div>
-            <div className='signup-submit'>Don't have an account? <Link to="/signup">Sign Up</Link></div>
+            <div className='signup-submit'>
+                Don't have an account? <Link to="/signup">Sign Up</Link>
+            </div>
             <div className='submit-container'>
                 <div className='submit' onClick={handleLogin}>Login</div>
             </div>
+            {error && <div className='error-message'>{error}</div>}
         </div>
     );
 }
