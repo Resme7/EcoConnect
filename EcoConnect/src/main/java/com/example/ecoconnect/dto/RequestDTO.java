@@ -9,12 +9,13 @@ import lombok.Setter;
 @Getter
 public class RequestDTO {
     @NotBlank(message = "Required")
-    private String unit;
+    private String materialName;
+
 
     @NotBlank(message = "Required")
     @Pattern(message = "Only numbers between 0,1 and 500.", regexp = "^(([1-4][0-9][0-9],[0-9]*)|([1-4][0-9][0-9])|(100(\\.[0]{1,2})?|[1-9][0-9](\\,[0-9]*)?)|([0],[1-9][0-9]*)|10|([1][0],[0-9]*)|500|([1],[0-9]*)|1|[1-9]|([1-9],[0-9]*))$")
     private String quantity;
 
     @NotBlank(message = "Required")
-    private String materialName;
+    private String unit;
 }

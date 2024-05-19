@@ -56,7 +56,7 @@ public class RequestController {
                 }
 
                 Map<String, String> personNullMessage = new HashMap<>();
-                personNullMessage.put("message", MessageContent.USER_NOT_FOUND);
+                personNullMessage.put("message", MessageContent.PERSON_NOT_FOUND);
                 if (saveRequest(requestDTOList, id, convertor))
 
                         return new ResponseEntity<>(personNullMessage, HttpStatus.NOT_FOUND);

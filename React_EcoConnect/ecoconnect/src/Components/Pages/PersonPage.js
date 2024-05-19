@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Box, Container, CssBaseline, List, ListItem, ListItemText, Button } from '@mui/material';
 import { useUser } from '../Pages/util/UserContext'; 
-import { fetchRequestsByUserId } from './RequestService'; 
+import { fetchRequestByPersonId } from './RequestService'; 
 import logo from '../Assets/ecoConnect.png';
 
 function PersonPage() {
@@ -10,8 +10,8 @@ function PersonPage() {
     const [requests, setRequests] = useState([]);
 
     useEffect(() => {
-        if (user && user.personId) { 
-            fetchRequestsByUserId(user.personId)
+        if (user && user.userId) { 
+            fetchRequestByPersonId(user.userId)
                 .then(response => {
                     if(response.status === 200) {
                         setRequests(response.data); 

@@ -3,13 +3,17 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8082/api/requests';
 
-const fetchRequestsByUserId = (userId) => {
-    return axios.get(`${API_BASE_URL}/person/${userId}/requests`);
+const fetchRequestByPersonId = (userId) => {
+    return axios.get(`http://localhost:8082/api/users/person-id/${userId}`);
 };
 
-const createRequest = (user,requestData) => {
-    const userId = user.personId;
-    return axios.post(`${API_BASE_URL}/${userId}`, requestData);
+const createRequest = (userId, requestList) => {
+    return axios.post(`${API_BASE_URL}/${userId}`, requestList)
+        .then(response => response)
+        .catch(error => {
+            console.error('Error in createRequest:', error);
+            throw error;
+        });
 };
 
 
@@ -18,6 +22,6 @@ const updateRequestOnHold = (userId, requestOnHoldData) => {
 };
 
 
-export { fetchRequestsByUserId, createRequest, updateRequestOnHold };
+export { fetchRequestByPersonId, createRequest, updateRequestOnHold };
 
 

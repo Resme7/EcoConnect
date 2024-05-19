@@ -70,6 +70,18 @@ public class UserController {
 
         return checkUserExistence(userLoginDTO, user);
     }
+
+    @GetMapping("/person-id/{userId}")
+    public ResponseEntity<Map<String, Long>> getPersonIdByUserId(@PathVariable Long userId) {
+        Person person = personService.getByUserId(userId);
+        if (person == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Map<String, Long> response = new HashMap<>();
+        response.put("personId", person.getPersonId());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity getAllUsers() {
         List<User> users = userService.getAllUsers();

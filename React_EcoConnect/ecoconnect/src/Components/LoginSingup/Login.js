@@ -10,6 +10,7 @@ function Login() {
     const navigate = useNavigate();
     const { setUser } = useUser(); 
 
+
     const handleLogin = () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
@@ -19,10 +20,7 @@ function Login() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
+            body: JSON.stringify({ email, password })
         })
         .then(response => {
             if (!response.ok) {
@@ -31,18 +29,34 @@ function Login() {
             return response.json();
         })
         .then(data => {
-            setUser({ id: data.id, role: data.role }); 
-            if (data.role === 'Company') {
-                navigate('/company');
-            } else if (data.role === 'Person') {
-                navigate('/person');
-            }
+            console.log('Login response:', data);  // Verifică structura obiectului primit
+            const userId = data.id;
+
+            // Fetch personId using userId
+            return fetch(`http://localhost:8082/api/users/person-id/${userId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch person ID.');
+                    }
+                    return response.json();
+                })
+                .then(personData => {
+                    console.log('Person ID response:', personData);
+                    setUser({ id: userId, role: data.role, personId: personData.personId });
+
+                    if (data.role === 'Company') {
+                        navigate('/company');
+                    } else if (data.role === 'Person') {
+                        navigate('/person');
+                    }
+                });
         })
         .catch(error => {
             setError('Login failed. Please try again.');
             console.error('Login Error:', error);
         });
     };
+
 
     return (
         <div className='container'>
