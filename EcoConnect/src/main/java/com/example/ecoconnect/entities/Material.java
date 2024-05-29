@@ -26,6 +26,9 @@ public class Material {
     @Column(name = "material_name", nullable = false, unique = true)
     private String materialName;
 
+    @OneToMany(mappedBy = "material", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Request> requests;
+
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "materialList")
     private List<Company> companyList = new ArrayList<>();
 }

@@ -64,6 +64,17 @@ public class RequestController {
                 validations.put("Results", "The requests will be created with succes.");
                 return new ResponseEntity<>(validations, HttpStatus.OK);
         }
+        @GetMapping("/history/{personId}")
+        public ResponseEntity<?> getRequestHistoryByPersonId(@PathVariable Long personId) {
+                List<Request> requestHistory = requestService.getAllByPersonIdMaterial(personId);
+                if (requestHistory.isEmpty()) {
+                        Map<String, String> responseMessage = new HashMap<>();
+                        responseMessage.put("message", "Istoricul cererilor nu a fost găsit.");
+                        return new ResponseEntity<>(responseMessage, HttpStatus.NOT_FOUND);
+                }
+                return new ResponseEntity<>(requestHistory, HttpStatus.OK);
+        }
+
 
         @GetMapping(value = "/{id}")
         public ResponseEntity getRequestById(@PathVariable Long id) {

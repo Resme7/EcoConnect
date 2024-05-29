@@ -42,7 +42,8 @@ function Login() {
                 })
                 .then(personData => {
                     console.log('Person ID response:', personData);
-                    setUser({ id: userId, role: data.role, personId: personData.personId });
+                    setUser({ id: userId, role: data.role, personId: personData.personId, latitude: parseFloat(personData.latitude), 
+                        longitude: parseFloat(personData.longitude)});
 
                     if (data.role === 'Company') {
                         navigate('/company');

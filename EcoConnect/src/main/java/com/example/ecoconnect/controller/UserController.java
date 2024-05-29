@@ -72,13 +72,15 @@ public class UserController {
     }
 
     @GetMapping("/person-id/{userId}")
-    public ResponseEntity<Map<String, Long>> getPersonIdByUserId(@PathVariable Long userId) {
+    public ResponseEntity<Map<String, Object>> getPersonIdByUserId(@PathVariable Long userId) {
         Person person = personService.getByUserId(userId);
         if (person == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Map<String, Long> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
         response.put("personId", person.getPersonId());
+        response.put("latitude", person.getLatitude());
+        response.put("longitude", person.getLongitude());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -108,6 +110,18 @@ public class UserController {
         else
             return new ResponseEntity<>("Bad request.", HttpStatus.BAD_REQUEST);
     }
+    @GetMapping(value = "/nearby-companies/{personId}")
+    public ResponseEntity<List<CompanyDetailPracticeDTO>> getNearbyCompanies(@PathVariable Long personId) {
+        Person person = personService.getByUserId(personId);
+        if (person == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Double personLatitude = Double.parseDouble(person.getLatitude());
+        Double personLongitude = Double.parseDouble(person.getLongitude());
+        List<CompanyDetailPracticeDTO> nearbyCompanies = setNearbyCompanies(personLatitude, personLongitude);
+        return new ResponseEntity<>(nearbyCompanies, HttpStatus.OK);
+    }
+
 
     @GetMapping(value = "/nearby-users-for-person/{id}")
     public ResponseEntity getNearbyUsersForPerson(@PathVariable Long id) {
@@ -159,8 +173,8 @@ public class UserController {
         return new ResponseEntity<>(combinedList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/companies/hover-info")
-    public ResponseEntity getAllCompaniesWithHoverInfo() {
+    @GetMapping(value = "/companies/practice-info")
+    public ResponseEntity getAllCompaniesWithPracticeInfo() {
         List<CompanyDetailPracticeDTO> companyDetailPracticeDTOList = new ArrayList<>();
         DtoToEntity convertor = new DtoToEntity();
         setCompaniesPracticeInfos(companyDetailPracticeDTOList, convertor);
@@ -285,7 +299,7 @@ public class UserController {
         return companyDetailPracticeDTOS;
     }
 
-    private void setCompaniesPracticeInfos(List<CompanyDetailPracticeDTO> companyDetailsHoverDtoList, DtoToEntity convertor) {
+    private void setCompaniesPracticeInfos(List<CompanyDetailPracticeDTO> companyDetailsPracticeDtoList, DtoToEntity convertor) {
         for (Company company : companyService.getAllCompanies()) {
 
             List<String> materials = new ArrayList<>();
@@ -297,7 +311,7 @@ public class UserController {
             CompanyDetailPracticeDTO companyDetailPracticeDTO = convertor.convertorCompanyEntityToCompanyDetailPracticeDTO(company, materials);
             User user = userService.getByCompanyId(company.getCompanyId());
             companyDetailPracticeDTO.setId(user.getUserId());
-            companyDetailsHoverDtoList.add(companyDetailPracticeDTO);
+            companyDetailsPracticeDtoList.add(companyDetailPracticeDTO);
         }
     }
 

@@ -36,6 +36,10 @@ function PersonSignupForm() {
   const [success, setSuccess] = useState(false);
   const [redirect, setRedirect] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [markerPosition, setMarkerPosition] = useState({
+    lat: parseFloat(formData.latitude),
+    lng: parseFloat(formData.longitude)
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,6 +55,16 @@ function PersonSignupForm() {
       latitude: clickedLat.toString(),
       longitude: clickedLng.toString(),
     }));
+    setMarkerPosition({ lat: clickedLat, lng: clickedLng });
+  };
+
+  const handleMarkerDragEnd = (newLat, newLng) => {
+    setFormData(prevState => ({
+      ...prevState,
+      latitude: newLat.toString(),
+      longitude: newLng.toString(),
+    }));
+    setMarkerPosition({ lat: newLat, lng: newLng });
   };
 
   const handleSubmit = async (e) => {
@@ -68,7 +82,6 @@ function PersonSignupForm() {
         throw new Error('Failed to sign up');
       }
       const data = await response.json();
-      console.log('Person signup successful:', data);
       setSuccess(true);
       setTimeout(() => {
         setRedirect(true);
@@ -81,7 +94,6 @@ function PersonSignupForm() {
         });
         setErrors(validationErrors);
       } else {
-        console.error('Person signup error:', error);
         setErrorMessage(error.message);
       }
     }
@@ -138,11 +150,12 @@ function PersonSignupForm() {
         </label>
       </div>
       <Map 
-          latitude={formData.latitude} 
-          longitude={formData.longitude} 
-          onRightClick={handleMapRightClick} 
-          pinType="person"
-        />
+        latitude={markerPosition.lat} 
+        longitude={markerPosition.lng} 
+        onRightClick={handleMapRightClick} 
+        onMarkerDragEnd={handleMarkerDragEnd}
+        pinType="person"
+      />
       {success && <div className="success-message">Așteaptă 3 secunde...</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className='submit-button'>

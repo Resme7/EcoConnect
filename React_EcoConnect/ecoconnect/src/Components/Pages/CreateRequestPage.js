@@ -4,7 +4,7 @@ import {
     MenuItem, Select, FormControl, InputLabel
 } from '@mui/material';
 import { useUser } from '../Pages/util/UserContext';
-import { createRequest } from './RequestService';
+import { createRequest } from './Service/Service';
 import { Link } from 'react-router-dom';
 import './style/General_page.css';
 
@@ -14,6 +14,7 @@ function CreateRequestPage() {
     const [materialName, setMaterialName] = useState('');
     const [unit, setUnit] = useState('');
     const [selectedMaterials, setSelectedMaterials] = useState([]);
+    const [error, setError] = useState('')
     
 
     const handleAddToList = () => {
@@ -45,24 +46,23 @@ function CreateRequestPage() {
     if (user && user.id && selectedMaterials.length > 0) {
         console.log('Conditions met, sending request...');
         createRequest(user.id, selectedMaterials)
-            .then(response => {
-                console.log('Request response:', response);
-                if (response.ok) {
-                    alert('Request created successfully!');
-                } else {
-                    response.json().then(data => {
-                        console.error('Failed to create request:', data);
-                        alert('Failed to create request: ' + data.message);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Error during request creation:', error);
-                alert('An error occurred while creating the request.');
-            });
-    } else {
-        alert('Please add materials to the list and ensure user is selected.');
-    }
+        .then(response => {
+            console.log('Request response:', response);
+            if (response.status === 200) {
+                alert('Request created successfully!');
+            } else {
+                console.error('Failed to create request:', response.data);
+                alert('Failed to create request: ' + response.data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to create request:', error);
+            setError('An error occurred while creating the request.');
+            alert('An error occurred while creating the request. Error: ' + error.message);
+        });
+} else {
+    alert('Please add materials to the list and ensure user is selected.');
+}
 };
 
     return (

@@ -46,9 +46,10 @@ function CompanySignupForm() {
   const [redirect, setRedirect] = useState(false);
   const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
+
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
-  
+
     if (e.target.type === 'checkbox') {
       if (checked) {
         setFormData(prevState => ({
@@ -68,12 +69,20 @@ function CompanySignupForm() {
       }));
     }
   };
-  
+
   const handleMapRightClick = (clickedLat, clickedLng) => {
     setFormData(prevState => ({
       ...prevState,
       latitude: clickedLat.toString(),
       longitude: clickedLng.toString(),
+    }));
+  };
+
+  const handleMarkerDragEnd = (newLat, newLng) => {
+    setFormData(prevState => ({
+      ...prevState,
+      latitude: newLat.toString(),
+      longitude: newLng.toString(),
     }));
   };
 
@@ -90,16 +99,16 @@ function CompanySignupForm() {
         },
         body: JSON.stringify(formData),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to sign up');
       }
-  
+
       const data = await response.json();
       console.log('Company signup successful:', data);
 
       setSuccess(true);
-  
+
       setTimeout(() => {
         setRedirect(true);
       }, 3000);
@@ -116,7 +125,6 @@ function CompanySignupForm() {
       }
     }
   };
-  
 
   useEffect(() => {
     if (redirect) {
@@ -190,12 +198,12 @@ function CompanySignupForm() {
             Glass
           </label>
         </div>
-
       </div>
       <Map
         latitude={formData.latitude}
         longitude={formData.longitude}
         onRightClick={handleMapRightClick}
+        onMarkerDragEnd={handleMarkerDragEnd}
         pinType="company"
       />
       {success && <div className="success-message">Așteaptă 3 secunde...</div>}
