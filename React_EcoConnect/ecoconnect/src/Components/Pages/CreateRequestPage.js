@@ -3,6 +3,7 @@ import {
     AppBar, Toolbar, Typography, Button, TextField, Container, CssBaseline,
     MenuItem, Select, FormControl, InputLabel
 } from '@mui/material';
+import logo from '../Assets/ecoConnect.png';
 import { useUser } from '../Pages/util/UserContext';
 import { createRequest } from './Service/Service';
 import { Link } from 'react-router-dom';
@@ -70,7 +71,8 @@ function CreateRequestPage() {
             <CssBaseline />
             <AppBar position="static" color="default" elevation={0}>
                 <Toolbar>
-                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                    <img src={logo} alt="Logo" style={{ height: 50, position: 'fixed', top: 0, left: 0, margin: 10 }} />
+                    <Typography variant="h6" sx={{ flexGrow: 1, color:'#134611',textAlign: 'center', marginLeft: 'auto' }}>
                         Create Request
                     </Typography>
                     <Button color="inherit">

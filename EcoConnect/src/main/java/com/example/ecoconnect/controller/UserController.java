@@ -110,15 +110,15 @@ public class UserController {
         else
             return new ResponseEntity<>("Bad request.", HttpStatus.BAD_REQUEST);
     }
-    @GetMapping(value = "/nearby-companies/{personId}")
-    public ResponseEntity<List<CompanyDetailPracticeDTO>> getNearbyCompanies(@PathVariable Long personId) {
+    @GetMapping(value = "/nearby-companies/{personId}/{radius}")
+    public ResponseEntity<List<CompanyDetailPracticeDTO>> getNearbyCompanies(@PathVariable Long personId, @PathVariable Double radius) {
         Person person = personService.getByUserId(personId);
         if (person == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         Double personLatitude = Double.parseDouble(person.getLatitude());
         Double personLongitude = Double.parseDouble(person.getLongitude());
-        List<CompanyDetailPracticeDTO> nearbyCompanies = setNearbyCompanies(personLatitude, personLongitude);
+        List<CompanyDetailPracticeDTO> nearbyCompanies = setNearbyCompaniesRadius(personLatitude, personLongitude, radius);
         return new ResponseEntity<>(nearbyCompanies, HttpStatus.OK);
     }
 
@@ -181,6 +181,15 @@ public class UserController {
         return new ResponseEntity(companyDetailPracticeDTOList, HttpStatus.OK);
     }
 
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        if (user == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        userService.deleteUserById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     private void setUserMapDetails(List<User> users, List<UserDetailMapDTO> userDetailMapDTOS) {
         for (User user : users) {
             UserDetailMapDTO userDetailMapDTO = new UserDetailMapDTO();
@@ -280,6 +289,26 @@ public class UserController {
 
     private List<CompanyDetailPracticeDTO> setNearbyCompanies(Double latitude, Double longitude) {
         List<Company> nearbyCompany = distanceBetweenUsers.getAllNearbyCompany(latitude, longitude);
+        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOS = new ArrayList<>();
+        DtoToEntity convertor = new DtoToEntity();
+
+        for (Company company : nearbyCompany) {
+            List<String> materials = new ArrayList<>();
+            for (Material material : company.getMaterialList()) {
+
+                if (materialService.getMaterialByName(material.getMaterialName()) != null && !materials.contains(material.getMaterialName())) {
+                    materials.add(material.getMaterialName());
+                }
+            }
+            CompanyDetailPracticeDTO companyDetailPracticeDTO = convertor.convertorCompanyEntityToCompanyDetailPracticeDTO(company, materials);
+            User user = userService.getByCompanyId(company.getCompanyId());
+            companyDetailPracticeDTO.setId(user.getUserId());
+            companyDetailPracticeDTOS.add(companyDetailPracticeDTO);
+        }
+        return companyDetailPracticeDTOS;
+    }
+    private List<CompanyDetailPracticeDTO> setNearbyCompaniesRadius(Double latitude, Double longitude, Double radius) {
+        List<Company> nearbyCompany = distanceBetweenUsers.getAllNearbyCompanyRadius(latitude, longitude, radius);
         List<CompanyDetailPracticeDTO> companyDetailPracticeDTOS = new ArrayList<>();
         DtoToEntity convertor = new DtoToEntity();
 

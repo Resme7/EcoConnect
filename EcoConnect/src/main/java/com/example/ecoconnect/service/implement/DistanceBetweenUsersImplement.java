@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 public class DistanceBetweenUsersImplement implements DistanceBetweenUsers {
-    private final static Double RADIUS = 3d;
+    private final static Double RADIUS = 10d;
     @Autowired
     private PersonRepository personRepository;
 
@@ -74,4 +74,20 @@ public class DistanceBetweenUsersImplement implements DistanceBetweenUsers {
         }
         return nearbyCompany;
     }
+    @Override
+    public List<Company> getAllNearbyCompanyRadius(Double latitude, Double longitude, Double radius) {
+        List<Company> nearbyCompany = new ArrayList<>();
+        for(Company company : companyRepository.findAll()){
+            Double latitudeCompany = Double.parseDouble(company.getLatitude());
+            Double longitudeCompany = Double.parseDouble(company.getLongitude());
+            if(CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudeCompany, longitudeCompany) < radius &&
+                    CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudeCompany, longitudeCompany) !=0){
+                nearbyCompany.add(company);
+            }
+        }
+        return nearbyCompany;
+    }
 }
+
+
+

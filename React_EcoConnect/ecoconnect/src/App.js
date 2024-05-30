@@ -6,6 +6,7 @@ import PersonPage from './Components/Pages/PersonPage';
 import CompanyPage from './Components/Pages/CompanyPage';
 import { UserProvider } from './Components/Pages/util/UserContext';
 import CreateRequestPage from './Components/Pages/CreateRequestPage';
+import UserProfile from './Components/Pages/UserProfile';
 import { LoadScript } from '@react-google-maps/api';
 
 const API_KEY = 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk';
@@ -21,6 +22,7 @@ function App() {
             <Route path="/person" element={<PersonPage />} />
             <Route path="/company" element={<CompanyPage />} />
             <Route path="/create-request" element={<CreateRequestPage />} />
+            <Route path="/user-profile" element={<UserProfile />} />
           </Routes>
         </Router>
       </LoadScript>

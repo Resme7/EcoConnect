@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Box, Container, CssBaseline, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, TextField, Box, Container, CssBaseline, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton } from '@mui/material';
 import { useUser } from '../Pages/util/UserContext';
-import { fetchRequestByPersonId, fetchRequestHistoryByPersonId, deleteRequestById, fetchRequestById, fetchMaterialById, fetchCompanyPracticeInfo } from './Service/Service';
+import { fetchNearbyCompaniesRadius, fetchRequestByPersonId, fetchRequestHistoryByPersonId, deleteRequestById, fetchRequestById, fetchMaterialById, fetchCompanyPracticeInfo } from './Service/Service';
 import logo from '../Assets/ecoConnect.png';
 import personPin from '../Assets/person-pin.png';
 import companyPin from '../Assets/company-pin.png';
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 const mapContainerStyle = {
     height: "600px",
@@ -14,12 +15,14 @@ const mapContainerStyle = {
 };
 
 function PersonPage() {
-    const { user } = useUser();
+    const { user, setUser } = useUser();
     const [requests, setRequests] = useState([]);
     const [companies, setCompanies] = useState([]);
     const [center, setCenter] = useState({ lat: 0, lng: 0 });
     const [history, setHistory] = useState([]);
     const [selectedCompany, setSelectedCompany] = useState(null);
+    const [radius, setRadius] = useState(10);
+    const navigate = useNavigate();
 
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk', // Asigură-te că folosești cheia API corectă
@@ -43,14 +46,14 @@ function PersonPage() {
                 });
             }
 
-            fetchCompanyPracticeInfo()
+            fetchNearbyCompaniesRadius(user.id, radius)
                 .then(response => {
                     if (response.status === 200) {
                         console.log('Companies:', response.data);
                         setCompanies(response.data);
                     }
                 })
-                .catch(error => console.error('Failed to fetch company practice info:', error));
+                .catch(error => console.error('Failed to fetch nearby companies:', error));
 
             fetchRequestHistoryByPersonId(user.personId)
                 .then(response => {
@@ -73,7 +76,7 @@ function PersonPage() {
                 })
                 .catch(error => console.error('Failed to fetch request history:', error));
         }
-    }, [user]);
+    }, [user, radius]);
 
     const handleDelete = (requestId) => {
         deleteRequestById(requestId)
@@ -83,6 +86,28 @@ function PersonPage() {
                 }
             })
             .catch(error => console.error('Failed to delete request:', error));
+    };
+
+    const handleLogout = () => {
+        setUser(null);
+        navigate('/');
+    };
+
+    const handleUserProfile = () => {
+        navigate('/user-profile');
+    };
+    const handleRadiusChange = (event) => {
+        setRadius(event.target.value);
+    };
+
+    const handleRadiusSubmit = () => {
+        fetchNearbyCompaniesRadius(user.id, radius)
+            .then(response => {
+                if (response.status === 200) {
+                    setCompanies(response.data);
+                }
+            })
+            .catch(error => console.error('Failed to fetch nearby companies:', error));
     };
 
     if (!isLoaded) {
@@ -95,16 +120,33 @@ function PersonPage() {
             <AppBar position="static" color="default" elevation={0}>
                 <Toolbar>
                     <img src={logo} alt="Logo" style={{ height: 50, position: 'fixed', top: 0, left: 0, margin: 10 }} />
-                    <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center', marginLeft: 'auto' }}>
+                    <Typography variant="h6" sx={{ flexGrow: 1, color:'#134611',textAlign: 'center', marginLeft: 'auto' }}>
                         Eco Connect
                     </Typography>
-                    <Button color="inherit">
-                        <Link to="/create-request" style={{ textDecoration: 'none', color: 'inherit' }}>Create Request</Link>
+                    <IconButton color="inherit" onClick={handleUserProfile}>
+                        <AccountCircleIcon />
+                    </IconButton>
+                    <Button color="inherit" onClick={handleLogout} sx={{ backgroundColor: '#134611', color: 'white', marginLeft: 2 }}>
+                        Logout
                     </Button>
                 </Toolbar>
             </AppBar>
             <div className='page-container'>
                 <Container maxWidth="md" style={{ marginTop: '20px' }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                        <Box>
+                            <TextField
+                                label="Radius (km)"
+                                variant="outlined"
+                                size="small"
+                                type="number"
+                                value={radius}
+                                onChange={handleRadiusChange}
+                                sx={{ mr: 2 }}
+                            />
+                           
+                        </Box>
+                    </Box>
                     <GoogleMap
                         mapContainerStyle={mapContainerStyle}
                         center={center}
@@ -142,7 +184,7 @@ function PersonPage() {
                                     lat: parseFloat(selectedCompany.latitude),
                                     lng: parseFloat(selectedCompany.longitude)
                                 }}
-                                onCloseClick={() => setSelectedCompany(null)}
+                                // onCloseClick={() => setSelectedCompany(null)}
                             >
                                 <div>
                                     <h2>{selectedCompany.companyName}</h2>
@@ -157,6 +199,11 @@ function PersonPage() {
             </div>
             <div className='page-container'>
                 <Container maxWidth="md">
+                    <Box display="flex" justifyContent="flex-end" mb={2}>
+                        <Button variant="contained" color="inherit">
+                            <Link to="/create-request" style={{ textDecoration: 'none', color: 'inherit'}}>Create Request</Link>
+                        </Button>
+                    </Box>
                     {history.length > 0 && (
                         <div>
                             <Typography variant="h5" align="center" mt={4}>

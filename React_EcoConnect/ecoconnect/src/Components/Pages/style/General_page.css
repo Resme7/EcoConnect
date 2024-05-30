@@ -19,5 +19,18 @@
     margin-top: 50px;
     background: #fff;
     padding-bottom: 30px;
+}
 
+.page-container1 {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 800px;
+  margin-top: 50px;
+  background: #fff;
+  padding-bottom: 30px;
+
+}
+.deleteButton1{
+  margin-left:500px;
 }

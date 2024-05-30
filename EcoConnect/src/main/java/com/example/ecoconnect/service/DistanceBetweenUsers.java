@@ -13,4 +13,6 @@ public interface DistanceBetweenUsers {
     List<Person> getAllNearbyPersonWithStatusOnHold(Double latitude, Double longitude);
 
     List<Company> getAllNearbyCompany(Double latitude, Double longitude);
+
+    List<Company> getAllNearbyCompanyRadius(Double latitude, Double longitude, Double radius);
 }
