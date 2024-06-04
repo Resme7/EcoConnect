@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { TextField, Button, Select, MenuItem, InputLabel, FormControl, FormHelperText, Box } from '@mui/material';
 import Map from './Map';
 import * as yup from 'yup';
 
@@ -42,6 +43,8 @@ function CompanySignupForm() {
     latitude: '47.1585',
     longitude: '27.6014',
   });
+  const [materials, setMaterials] = useState([]);
+  const [newMaterial, setNewMaterial] = useState('');
   const [success, setSuccess] = useState(false);
   const [redirect, setRedirect] = useState(false);
   const [errors, setErrors] = useState({});
@@ -51,27 +54,59 @@ function CompanySignupForm() {
     lng: parseFloat(formData.longitude)
   });
 
-  const handleChange = (e) => {
-    const { name, value, checked } = e.target;
+  useEffect(() => {
+    fetchMaterials();
+  }, []);
 
-    if (e.target.type === 'checkbox') {
-      if (checked) {
-        setFormData(prevState => ({
-          ...prevState,
-          [name]: [...prevState[name], value],
-        }));
-      } else {
-        setFormData(prevState => ({
-          ...prevState,
-          [name]: prevState[name].filter(item => item !== value),
-        }));
-      }
-    } else {
-      setFormData(prevState => ({
-        ...prevState,
-        [name]: value,
-      }));
+  const fetchMaterials = async () => {
+    try {
+      const response = await fetch('http://localhost:8082/api/materials');
+      const data = await response.json();
+      setMaterials(data);
+    } catch (error) {
+      console.error('Error fetching materials:', error);
     }
+  };
+
+  const handleNewMaterialSubmit = async (e) => {
+    e.preventDefault();
+    if (materials.some(material => material.materialName.toLowerCase() === newMaterial.toLowerCase())) {
+      setErrorMessage('This material already exists.');
+      return;
+    }
+    try {
+      const response = await fetch('http://localhost:8082/api/materials', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ materialName: newMaterial }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to add new material');
+      }
+      fetchMaterials();
+      setNewMaterial('');
+      setErrorMessage('');
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectChange = (e) => {
+    const { value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      materialName: value,
+    }));
   };
 
   const getAddressFromCoordinates = async (lat, lng) => {
@@ -129,6 +164,7 @@ function CompanySignupForm() {
     e.preventDefault();
     try {
       await companySchema.validate(formData, { abortEarly: false });
+      
       const response = await fetch('http://localhost:8082/api/companies', {
         method: 'POST',
         headers: {
@@ -164,86 +200,176 @@ function CompanySignupForm() {
   }, [redirect]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className='form'>
-        <label className='input'>
-          <input type="text" name="companyName" value={formData.companyName} placeholder='Company Name' onChange={handleChange} />
-          {errors.companyName && <span className="error">{errors.companyName}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="descriptionCompany" value={formData.descriptionCompany} placeholder='Description' onChange={handleChange} />
-          {errors.descriptionCompany && <span className="error">{errors.descriptionCompany}</span>}
-        </label>
-        <label className='input'>
-          <input type="email" name="email" value={formData.email} placeholder='Email' onChange={handleChange} />
-          {errors.email && <span className="error">{errors.email}</span>}
-        </label>
-        <label className='input'>
-          <input type="password" name="password" value={formData.password} placeholder='Password' onChange={handleChange} />
-          {errors.password && <span className="error">{errors.password}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="companyNumberPhone" value={formData.companyNumberPhone} placeholder='Company Phone Number' onChange={handleChange} />
-          {errors.companyNumberPhone && <span className="error">{errors.companyNumberPhone}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="companyCode" value={formData.companyCode} placeholder='Company Code' onChange={handleChange} />
-          {errors.companyCode && <span className="error">{errors.companyCode}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="building" value={formData.building} placeholder='Building' onChange={handleChange} />
-          {errors.building && <span className="error">{errors.building}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="entrance" value={formData.entrance} placeholder='Entrance' onChange={handleChange} />
-          {errors.entrance && <span className="error">{errors.entrance}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="apartNumber" value={formData.apartNumber} placeholder='Apartment Number' onChange={handleChange} />
-          {errors.apartNumber && <span className="error">{errors.apartNumber}</span>}
-        </label>
-        <label className='input'>
-          <input type="text"  name="street" value={formData.street} placeholder='Street' onChange={handleChange} />
-          {errors.street && <span className="error">{errors.street}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="number" value={formData.number} placeholder='Number' onChange={handleChange} />
-          {errors.number && <span className="error">{errors.number}</span>}
-        </label>
-        
-        <h3 className='TextH3'>Material</h3>
-        <div className='material'>
-          <label className="checkbox-label">
-            <input type="checkbox" name="materialName" value="Metal" checked={formData.materialName.includes('Metal')} onChange={handleChange} />
-            Metal
-          </label>
-          <label className="checkbox-label">
-            <input type="checkbox" name="materialName" value="Paper" checked={formData.materialName.includes('Paper')} onChange={handleChange} />
-            Paper
-          </label>
-          <label className="checkbox-label">
-            <input type="checkbox" name="materialName" value="Plastic" checked={formData.materialName.includes('Plastic')} onChange={handleChange} />
-            Plastic
-          </label>
-          <label className="checkbox-label">
-            <input type="checkbox" name="materialName" value="Glass" checked={formData.materialName.includes('Glass')} onChange={handleChange} />
-            Glass
-          </label>
+    <div>
+      <form onSubmit={handleSubmit}>
+        <div className='form'>
+          <TextField
+            label="Company Name"
+            name="companyName"
+            value={formData.companyName}
+            onChange={handleChange}
+            error={!!errors.companyName}
+            helperText={errors.companyName}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Description"
+            name="descriptionCompany"
+            value={formData.descriptionCompany}
+            onChange={handleChange}
+            error={!!errors.descriptionCompany}
+            helperText={errors.descriptionCompany}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Email"
+            name="email"
+            type="email"
+            value={formData.email}
+            onChange={handleChange}
+            error={!!errors.email}
+            helperText={errors.email}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Password"
+            name="password"
+            type="password"
+            value={formData.password}
+            onChange={handleChange}
+            error={!!errors.password}
+            helperText={errors.password}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Company Phone Number"
+            name="companyNumberPhone"
+            value={formData.companyNumberPhone}
+            onChange={handleChange}
+            error={!!errors.companyNumberPhone}
+            helperText={errors.companyNumberPhone}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Company Code"
+            name="companyCode"
+            value={formData.companyCode}
+            onChange={handleChange}
+            error={!!errors.companyCode}
+            helperText={errors.companyCode}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Building"
+            name="building"
+            value={formData.building}
+            onChange={handleChange}
+            error={!!errors.building}
+            helperText={errors.building}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Entrance"
+            name="entrance"
+            value={formData.entrance}
+            onChange={handleChange}
+            error={!!errors.entrance}
+            helperText={errors.entrance}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Apartment Number"
+            name="apartNumber"
+            value={formData.apartNumber}
+            onChange={handleChange}
+            error={!!errors.apartNumber}
+            helperText={errors.apartNumber}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Street"
+            name="street"
+            value={formData.street}
+            onChange={handleChange}
+            error={!!errors.street}
+            helperText={errors.street}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Number"
+            name="number"
+            value={formData.number}
+            onChange={handleChange}
+            error={!!errors.number}
+            helperText={errors.number}
+            fullWidth
+            margin="dense"
+          />
+          
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="material-select-label">Materials</InputLabel>
+            <Select
+              labelId="material-select-label"
+              multiple
+              value={formData.materialName}
+              onChange={handleSelectChange}
+              renderValue={(selected) => selected.join(', ')}
+            >
+              {materials.map(material => (
+                <MenuItem key={material.id} value={material.materialName}>
+                  {material.materialName}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>Select materials used by the company</FormHelperText>
+          </FormControl>
+          <Box component="form" onSubmit={handleNewMaterialSubmit} sx={{ display: 'flex', alignItems: 'center', marginTop: '20px' }}>
+        <TextField
+          label="Add New Material"
+          value={newMaterial}
+          onChange={(e) => setNewMaterial(e.target.value)}
+          placeholder="New Material Name"
+          fullWidth
+          margin="dense"
+          sx={{ marginRight: '16px' }}
+        />
+        <Button variant="contained" color="primary" onClick={handleNewMaterialSubmit} sx={{ marginTop: '16px', height: '56px' }}>Add Material</Button>
+      </Box>
+      {errorMessage && <FormHelperText error>{errorMessage}</FormHelperText>}
+      <br></br>
         </div>
-      </div>
-      <Map
-        latitude={markerPosition.lat}
-        longitude={markerPosition.lng}
-        onRightClick={handleMapRightClick}
-        onMarkerDragEnd={handleMarkerDragEnd}
-        pinType="company"
-      />
-      {success && <div className="success-message">Please wait 3 seconds...</div>}
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
-      <div className='submit-button'>
-        <button className='submit' type="submit">Sign Up</button>
-      </div>
-    </form>
+        <Map
+          latitude={markerPosition.lat}
+          longitude={markerPosition.lng}
+          onRightClick={handleMapRightClick}
+          onMarkerDragEnd={handleMarkerDragEnd}
+          pinType="company"
+        />
+        <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+          <Button
+            variant="contained"
+            type="submit"
+            sx={{ backgroundColor: '#134611', '&:hover': { backgroundColor: '#102e10' } }}
+          >
+            Sign Up
+          </Button>
+        </Box>
+        {success && <div className="success-message">Please wait 3 seconds...</div>}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
+        
+      </form>
+      
+    </div>
   );
 }
 

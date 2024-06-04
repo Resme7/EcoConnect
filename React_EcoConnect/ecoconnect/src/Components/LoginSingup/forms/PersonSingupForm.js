@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { TextField, Button, Box, FormHelperText } from '@mui/material';
 import Map from './Map';
 import * as yup from 'yup';
-
 
 const personSchema = yup.object().shape({
   firstName: yup.string().required('First name is required'),
@@ -42,7 +42,6 @@ function PersonSignupForm() {
     lng: parseFloat(formData.longitude)
   });
 
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -69,7 +68,6 @@ function PersonSignupForm() {
           if (component.types.includes('street_number')) {
             address.number = component.long_name;
           }
-          
         });
         setFormData(prevState => ({
           ...prevState,
@@ -142,48 +140,110 @@ function PersonSignupForm() {
   }, [redirect]);
 
   return (
-    <form onSubmit={handleSubmit}>
+    <Box component="form" onSubmit={handleSubmit} >
       <div className='form'>
-        <label className='input'>
-          <input type="text" name="firstName" value={formData.firstName} placeholder='First Name' onChange={handleChange} />
-          {errors.firstName && <span className="error">{errors.firstName}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="lastName" value={formData.lastName} placeholder='Last Name' onChange={handleChange} />
-          {errors.lastName && <span className="error">{errors.lastName}</span>}
-        </label>
-        <label className='input'>
-          <input type="email" name="email" value={formData.email} placeholder='Email' onChange={handleChange} />
-          {errors.email && <span className="error">{errors.email}</span>}
-        </label>
-        <label className='input'>
-          <input type="password" name="password" value={formData.password} placeholder='Password' onChange={handleChange} />
-          {errors.password && <span className="error">{errors.password}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="numberPhone" value={formData.numberPhone} placeholder='Phone Number' onChange={handleChange} />
-          {errors.numberPhone && <span className="error">{errors.numberPhone}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="building" value={formData.building} placeholder='Building' onChange={handleChange} />
-          {errors.building && <span className="error">{errors.building}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="entrance" value={formData.entrance} placeholder='Entrance' onChange={handleChange} />
-          {errors.entrance && <span className="error">{errors.entrance}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="apartNumber" value={formData.apartNumber} placeholder='Apartment Number' onChange={handleChange} />
-          {errors.apartNumber && <span className="error">{errors.apartNumber}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="street" value={formData.street} placeholder='Street' onChange={handleChange} />
-          {errors.street && <span className="error">{errors.street}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="number" value={formData.number} placeholder='Number' onChange={handleChange} />
-          {errors.number && <span className="error">{errors.number}</span>}
-        </label><br></br>
+        <TextField
+          label="First Name"
+          name="firstName"
+          value={formData.firstName}
+          onChange={handleChange}
+          error={!!errors.firstName}
+          helperText={errors.firstName}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Last Name"
+          name="lastName"
+          value={formData.lastName}
+          onChange={handleChange}
+          error={!!errors.lastName}
+          helperText={errors.lastName}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Email"
+          name="email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange}
+          error={!!errors.email}
+          helperText={errors.email}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Password"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          error={!!errors.password}
+          helperText={errors.password}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Phone Number"
+          name="numberPhone"
+          value={formData.numberPhone}
+          onChange={handleChange}
+          error={!!errors.numberPhone}
+          helperText={errors.numberPhone}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Building"
+          name="building"
+          value={formData.building}
+          onChange={handleChange}
+          error={!!errors.building}
+          helperText={errors.building}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Entrance"
+          name="entrance"
+          value={formData.entrance}
+          onChange={handleChange}
+          error={!!errors.entrance}
+          helperText={errors.entrance}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Apartment Number"
+          name="apartNumber"
+          value={formData.apartNumber}
+          onChange={handleChange}
+          error={!!errors.apartNumber}
+          helperText={errors.apartNumber}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Street"
+          name="street"
+          value={formData.street}
+          onChange={handleChange}
+          error={!!errors.street}
+          helperText={errors.street}
+          fullWidth
+          margin="dense"
+        />
+        <TextField
+          label="Number"
+          name="number"
+          value={formData.number}
+          onChange={handleChange}
+          error={!!errors.number}
+          helperText={errors.number}
+          fullWidth
+          margin="dense"
+        />
       </div>
       <Map 
         latitude={markerPosition.lat} 
@@ -194,10 +254,16 @@ function PersonSignupForm() {
       />
       {success && <div className="success-message">Please wait 3 seconds...</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
-      <div className='submit-button'>
-        <button className='submit' type="submit">Sign Up</button>
-      </div>
-    </form>
+      <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
+        <Button
+          variant="contained"
+          type="submit"
+          sx={{ backgroundColor: '#134611', '&:hover': { backgroundColor: '#102e10' } }}
+        >
+          Sign Up
+        </Button>
+      </Box>
+    </Box>
   );
 }
 
