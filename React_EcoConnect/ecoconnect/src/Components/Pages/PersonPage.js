@@ -184,7 +184,7 @@ function PersonPage() {
                                     lat: parseFloat(selectedCompany.latitude),
                                     lng: parseFloat(selectedCompany.longitude)
                                 }}
-                                // onCloseClick={() => setSelectedCompany(null)}
+                                onCloseClick={() => setSelectedCompany(null)}
                             >
                                 <div>
                                     <h2>{selectedCompany.companyName}</h2>

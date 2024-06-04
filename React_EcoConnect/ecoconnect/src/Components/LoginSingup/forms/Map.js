@@ -58,7 +58,7 @@ const Map = ({ latitude, longitude, onMarkerDragEnd, onRightClick, pinType }) =>
         onClick={handleMarkerClick} 
         icon={{
           url: pinImage,
-          scaledSize: { width: 32, height: 32 },
+          scaledSize: new window.google.maps.Size(32, 32),
         }}
       />
     </GoogleMap>

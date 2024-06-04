@@ -46,6 +46,10 @@ function CompanySignupForm() {
   const [redirect, setRedirect] = useState(false);
   const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState('');
+  const [markerPosition, setMarkerPosition] = useState({
+    lat: parseFloat(formData.latitude),
+    lng: parseFloat(formData.longitude)
+  });
 
   const handleChange = (e) => {
     const { name, value, checked } = e.target;
@@ -70,28 +74,61 @@ function CompanySignupForm() {
     }
   };
 
-  const handleMapRightClick = (clickedLat, clickedLng) => {
+  const getAddressFromCoordinates = async (lat, lng) => {
+    const apiKey = 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk';
+    try {
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`);
+      const data = await response.json();
+      if (data.status === 'OK') {
+        const addressComponents = data.results[0].address_components;
+        const address = {
+          street: '',
+          number: ''
+        };
+        addressComponents.forEach(component => {
+          if (component.types.includes('route')) {
+            address.street = component.long_name;
+          }
+          if (component.types.includes('street_number')) {
+            address.number = component.long_name;
+          }
+        });
+        setFormData(prevState => ({
+          ...prevState,
+          ...address,
+        }));
+      } else {
+        throw new Error(`Geocoding API error: ${data.status}`);
+      }
+    } catch (error) {
+      setErrorMessage(`Unable to fetch address from the selected coordinates. Error: ${error.message}`);
+    }
+  };
+
+  const handleMapRightClick = async (clickedLat, clickedLng) => {
     setFormData(prevState => ({
       ...prevState,
       latitude: clickedLat.toString(),
       longitude: clickedLng.toString(),
     }));
+    setMarkerPosition({ lat: clickedLat, lng: clickedLng });
+    await getAddressFromCoordinates(clickedLat, clickedLng);
   };
 
-  const handleMarkerDragEnd = (newLat, newLng) => {
+  const handleMarkerDragEnd = async (newLat, newLng) => {
     setFormData(prevState => ({
       ...prevState,
       latitude: newLat.toString(),
       longitude: newLng.toString(),
     }));
+    setMarkerPosition({ lat: newLat, lng: newLng });
+    await getAddressFromCoordinates(newLat, newLng);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await companySchema.validate(formData, { abortEarly: false });
-
-      console.log('FormData before fetch:', formData);
       const response = await fetch('http://localhost:8082/api/companies', {
         method: 'POST',
         headers: {
@@ -99,16 +136,11 @@ function CompanySignupForm() {
         },
         body: JSON.stringify(formData),
       });
-
       if (!response.ok) {
         throw new Error('Failed to sign up');
       }
-
       const data = await response.json();
-      console.log('Company signup successful:', data);
-
       setSuccess(true);
-
       setTimeout(() => {
         setRedirect(true);
       }, 3000);
@@ -120,8 +152,7 @@ function CompanySignupForm() {
         });
         setErrors(validationErrors);
       } else {
-        console.error('Company signup error:', error);
-        setErrorMessage('Failed to sign up');
+        setErrorMessage(error.message);
       }
     }
   };
@@ -152,12 +183,12 @@ function CompanySignupForm() {
           {errors.password && <span className="error">{errors.password}</span>}
         </label>
         <label className='input'>
-          <input type="text" name="street" value={formData.street} placeholder='Street' onChange={handleChange} />
-          {errors.street && <span className="error">{errors.street}</span>}
+          <input type="text" name="companyNumberPhone" value={formData.companyNumberPhone} placeholder='Company Phone Number' onChange={handleChange} />
+          {errors.companyNumberPhone && <span className="error">{errors.companyNumberPhone}</span>}
         </label>
         <label className='input'>
-          <input type="text" name="number" value={formData.number} placeholder='Number' onChange={handleChange} />
-          {errors.number && <span className="error">{errors.number}</span>}
+          <input type="text" name="companyCode" value={formData.companyCode} placeholder='Company Code' onChange={handleChange} />
+          {errors.companyCode && <span className="error">{errors.companyCode}</span>}
         </label>
         <label className='input'>
           <input type="text" name="building" value={formData.building} placeholder='Building' onChange={handleChange} />
@@ -172,13 +203,14 @@ function CompanySignupForm() {
           {errors.apartNumber && <span className="error">{errors.apartNumber}</span>}
         </label>
         <label className='input'>
-          <input type="text" name="companyNumberPhone" value={formData.companyNumberPhone} placeholder='Company Phone Number' onChange={handleChange} />
-          {errors.companyNumberPhone && <span className="error">{errors.companyNumberPhone}</span>}
+          <input type="text"  name="street" value={formData.street} placeholder='Street' onChange={handleChange} />
+          {errors.street && <span className="error">{errors.street}</span>}
         </label>
         <label className='input'>
-          <input type="text" name="companyCode" value={formData.companyCode} placeholder='Company Code' onChange={handleChange} />
-          {errors.companyCode && <span className="error">{errors.companyCode}</span>}
+          <input type="text" name="number" value={formData.number} placeholder='Number' onChange={handleChange} />
+          {errors.number && <span className="error">{errors.number}</span>}
         </label>
+        
         <h3 className='TextH3'>Material</h3>
         <div className='material'>
           <label className="checkbox-label">
@@ -200,13 +232,13 @@ function CompanySignupForm() {
         </div>
       </div>
       <Map
-        latitude={formData.latitude}
-        longitude={formData.longitude}
+        latitude={markerPosition.lat}
+        longitude={markerPosition.lng}
         onRightClick={handleMapRightClick}
         onMarkerDragEnd={handleMarkerDragEnd}
         pinType="company"
       />
-      {success && <div className="success-message">Așteaptă 3 secunde...</div>}
+      {success && <div className="success-message">Please wait 3 seconds...</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className='submit-button'>
         <button className='submit' type="submit">Sign Up</button>

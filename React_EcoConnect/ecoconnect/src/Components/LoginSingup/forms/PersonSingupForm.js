@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Map from './Map';
 import * as yup from 'yup';
 
+
 const personSchema = yup.object().shape({
   firstName: yup.string().required('First name is required'),
   lastName: yup.string().required('Last name is required'),
@@ -41,6 +42,7 @@ function PersonSignupForm() {
     lng: parseFloat(formData.longitude)
   });
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prevState => ({
@@ -49,22 +51,56 @@ function PersonSignupForm() {
     }));
   };
 
-  const handleMapRightClick = (clickedLat, clickedLng) => {
+  const getAddressFromCoordinates = async (lat, lng) => {
+    const apiKey = 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk';
+    try {
+      const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`);
+      const data = await response.json();
+      if (data.status === 'OK') {
+        const addressComponents = data.results[0].address_components;
+        const address = {
+          street: '',
+          number: ''
+        };
+        addressComponents.forEach(component => {
+          if (component.types.includes('route')) {
+            address.street = component.long_name;
+          }
+          if (component.types.includes('street_number')) {
+            address.number = component.long_name;
+          }
+          
+        });
+        setFormData(prevState => ({
+          ...prevState,
+          ...address,
+        }));
+      } else {
+        throw new Error(`Geocoding API error: ${data.status}`);
+      }
+    } catch (error) {
+      setErrorMessage(`Unable to fetch address from the selected coordinates. Error: ${error.message}`);
+    }
+  };
+
+  const handleMapRightClick = async (clickedLat, clickedLng) => {
     setFormData(prevState => ({
       ...prevState,
       latitude: clickedLat.toString(),
       longitude: clickedLng.toString(),
     }));
     setMarkerPosition({ lat: clickedLat, lng: clickedLng });
+    await getAddressFromCoordinates(clickedLat, clickedLng);
   };
 
-  const handleMarkerDragEnd = (newLat, newLng) => {
+  const handleMarkerDragEnd = async (newLat, newLng) => {
     setFormData(prevState => ({
       ...prevState,
       latitude: newLat.toString(),
       longitude: newLng.toString(),
     }));
     setMarkerPosition({ lat: newLat, lng: newLng });
+    await getAddressFromCoordinates(newLat, newLng);
   };
 
   const handleSubmit = async (e) => {
@@ -125,12 +161,8 @@ function PersonSignupForm() {
           {errors.password && <span className="error">{errors.password}</span>}
         </label>
         <label className='input'>
-          <input type="text" name="street" value={formData.street} placeholder='Street' onChange={handleChange} />
-          {errors.street && <span className="error">{errors.street}</span>}
-        </label>
-        <label className='input'>
-          <input type="text" name="number" value={formData.number} placeholder='Number' onChange={handleChange} />
-          {errors.number && <span className="error">{errors.number}</span>}
+          <input type="text" name="numberPhone" value={formData.numberPhone} placeholder='Phone Number' onChange={handleChange} />
+          {errors.numberPhone && <span className="error">{errors.numberPhone}</span>}
         </label>
         <label className='input'>
           <input type="text" name="building" value={formData.building} placeholder='Building' onChange={handleChange} />
@@ -145,9 +177,13 @@ function PersonSignupForm() {
           {errors.apartNumber && <span className="error">{errors.apartNumber}</span>}
         </label>
         <label className='input'>
-          <input type="text" name="numberPhone" value={formData.numberPhone} placeholder='Phone Number' onChange={handleChange} />
-          {errors.numberPhone && <span className="error">{errors.numberPhone}</span>}
+          <input type="text" name="street" value={formData.street} placeholder='Street' onChange={handleChange} />
+          {errors.street && <span className="error">{errors.street}</span>}
         </label>
+        <label className='input'>
+          <input type="text" name="number" value={formData.number} placeholder='Number' onChange={handleChange} />
+          {errors.number && <span className="error">{errors.number}</span>}
+        </label><br></br>
       </div>
       <Map 
         latitude={markerPosition.lat} 
@@ -156,7 +192,7 @@ function PersonSignupForm() {
         onMarkerDragEnd={handleMarkerDragEnd}
         pinType="person"
       />
-      {success && <div className="success-message">Așteaptă 3 secunde...</div>}
+      {success && <div className="success-message">Please wait 3 seconds...</div>}
       {errorMessage && <div className="error-message">{errorMessage}</div>}
       <div className='submit-button'>
         <button className='submit' type="submit">Sign Up</button>
