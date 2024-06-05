@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     AppBar, Toolbar, Typography, Button, TextField, Container, CssBaseline,
-    MenuItem, Select, FormControl, InputLabel
+    MenuItem, Select, FormControl, InputLabel, FormHelperText
 } from '@mui/material';
 import logo from '../Assets/ecoConnect.png';
 import { useUser } from '../Pages/util/UserContext';
@@ -15,8 +15,26 @@ function CreateRequestPage() {
     const [materialName, setMaterialName] = useState('');
     const [unit, setUnit] = useState('');
     const [selectedMaterials, setSelectedMaterials] = useState([]);
-    const [error, setError] = useState('')
-    
+    const [error, setError] = useState('');
+    const [materials, setMaterials] = useState([]);
+    const [fetchError, setFetchError] = useState('');
+
+    useEffect(() => {
+        const fetchMaterials = async () => {
+            try {
+                const response = await fetch('http://localhost:8082/api/materials');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch materials');
+                }
+                const data = await response.json();
+                setMaterials(data);
+            } catch (error) {
+                setFetchError('Error fetching materials');
+                console.error('Error fetching materials:', error);
+            }
+        };
+        fetchMaterials();
+    }, []);
 
     const handleAddToList = () => {
         if (materialName && quantity && unit) {
@@ -26,14 +44,12 @@ function CreateRequestPage() {
                 unit
             };
 
-            // Directly use the updated list within this function scope
             setSelectedMaterials(prevMaterials => {
                 const updatedMaterials = [...prevMaterials, newItem];
                 console.log('Current list:', updatedMaterials);
                 return updatedMaterials;
             });
 
-            // Clear the input fields
             setMaterialName('');
             setQuantity('');
             setUnit('');
@@ -43,28 +59,28 @@ function CreateRequestPage() {
     };
 
     const handleCreateRequest = () => {
-    console.log('Attempting to create request...', { user, selectedMaterials });
-    if (user && user.id && selectedMaterials.length > 0) {
-        console.log('Conditions met, sending request...');
-        createRequest(user.id, selectedMaterials)
-        .then(response => {
-            console.log('Request response:', response);
-            if (response.status === 200) {
-                alert('Request created successfully!');
-            } else {
-                console.error('Failed to create request:', response.data);
-                alert('Failed to create request: ' + response.data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Failed to create request:', error);
-            setError('An error occurred while creating the request.');
-            alert('An error occurred while creating the request. Error: ' + error.message);
-        });
-} else {
-    alert('Please add materials to the list and ensure user is selected.');
-}
-};
+        console.log('Attempting to create request...', { user, selectedMaterials });
+        if (user && user.id && selectedMaterials.length > 0) {
+            console.log('Conditions met, sending request...');
+            createRequest(user.id, selectedMaterials)
+                .then(response => {
+                    console.log('Request response:', response);
+                    if (response.status === 200) {
+                        alert('Request created successfully!');
+                    } else {
+                        console.error('Failed to create request:', response.data);
+                        alert('Failed to create request: ' + response.data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Failed to create request:', error);
+                    setError('An error occurred while creating the request.');
+                    alert('An error occurred while creating the request. Error: ' + error.message);
+                });
+        } else {
+            alert('Please add materials to the list and ensure user is selected.');
+        }
+    };
 
     return (
         <div>
@@ -72,7 +88,7 @@ function CreateRequestPage() {
             <AppBar position="static" color="default" elevation={0}>
                 <Toolbar>
                     <img src={logo} alt="Logo" style={{ height: 50, position: 'fixed', top: 0, left: 0, margin: 10 }} />
-                    <Typography variant="h6" sx={{ flexGrow: 1, color:'#134611',textAlign: 'center', marginLeft: 'auto' }}>
+                    <Typography variant="h6" sx={{ flexGrow: 1, color: '#134611', textAlign: 'center', marginLeft: 'auto' }}>
                         Create Request
                     </Typography>
                     <Button color="inherit">
@@ -91,11 +107,13 @@ function CreateRequestPage() {
                         label="Material Name"
                         onChange={e => setMaterialName(e.target.value)}
                     >
-                        <MenuItem value="Metal">Metal</MenuItem>
-                        <MenuItem value="Paper">Paper</MenuItem>
-                        <MenuItem value="Glass">Glass</MenuItem>
-                        <MenuItem value="Plastic">Plastic</MenuItem>
+                        {materials.map(material => (
+                            <MenuItem key={material.id} value={material.materialName}>
+                                {material.materialName}
+                            </MenuItem>
+                        ))}
                     </Select>
+                    {fetchError && <FormHelperText error>{fetchError}</FormHelperText>}
                 </FormControl>
 
                 <FormControl fullWidth style={{ marginTop: 20 }}>

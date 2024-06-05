@@ -3,6 +3,8 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8082/api';
 
+
+
 const fetchRequestByPersonId = (userId) => {
     return axios.get(`http://localhost:8082/api/users/person-id/${userId}`);
 };
@@ -10,7 +12,7 @@ const fetchRequestByPersonId = (userId) => {
     return axios.delete(`${API_BASE_URL}/requests/${requestId}`);
 };
 const fetchRequestHistoryByPersonId = (personId) => {
-    return axios.get(`${API_BASE_URL}/requests/history/${personId}`)};
+    return axios.get(`${API_BASE_URL}/requests/person/${personId}/requests`)};
 
 const fetchRequestById = (requestId) => {
         return axios.get(`${API_BASE_URL}/requests/${requestId}`);

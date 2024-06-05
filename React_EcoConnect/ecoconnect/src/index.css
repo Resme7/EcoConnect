@@ -5,10 +5,13 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  height: 100vh;
-  background: linear-gradient(to top, #134611, #E8FCCF);
-  background-size: 100%;
+  min-height: 100vh;
+  background-image: url("../src/Components/Assets/background_1.png");
+  background-size: cover;
   background-repeat:no-repeat;
+  background-position: center; 
+  position: relative;
+  overflow-x: hidden;
 }
 body:before{
   content:'';
@@ -17,7 +20,10 @@ body:before{
   bottom: 0;
   width: 100%;
   z-index: -1;
-  background: linear-gradient(to top, #E8FCCF,#134611 );
+  opacity: 0.4;
+  /* transform: scale(0.4); 
+  transform: rotate(90deg); */
+  transform-origin: center center;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',

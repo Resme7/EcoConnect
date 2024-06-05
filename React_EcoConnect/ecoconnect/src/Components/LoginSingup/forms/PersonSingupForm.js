@@ -4,15 +4,15 @@ import Map from './Map';
 import * as yup from 'yup';
 
 const personSchema = yup.object().shape({
-  firstName: yup.string().required('First name is required'),
-  lastName: yup.string().required('Last name is required'),
+  firstName: yup.string().matches(/[A-Z][a-z]*$/, 'Invalid name, [A-Z][a-z]').required('First name is required'),
+  lastName: yup.string().matches(/[/A-Z][a-z]*$/,'Invalid name, [A-Z][a-z]').required('Last name is required'),
   email: yup.string().email('Invalid email address').required('Email is required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
-  street: yup.string().required('Street is required'),
-  number: yup.string().required('Number is required'),
+  street: yup.string().matches(/[a-zA-Z ]*$/).required('Street is required'),
+  number: yup.string().matches(/^[0-9-]*$/, 'Invalid number').required('Number is required'),
   building: yup.string().required('Building is required'),
   entrance: yup.string().required('Entrance is required'),
-  apartNumber: yup.string().required('Apartment number is required'),
+  apartNumber: yup.string().matches(/^[0-9-]*$/, 'Invalid number').required('Apartment number is required'),
   numberPhone: yup.string().matches(/^[0][7]([0-9]{8})$/, 'Invalid phone number').required('Phone number is required'),
   longitude: yup.number().required('Longitude is required'),
   latitude: yup.number().required('Latitude is required'),
@@ -105,6 +105,7 @@ function PersonSignupForm() {
     e.preventDefault();
     try {
       await personSchema.validate(formData, { abortEarly: false });
+      console.log('Form Data:', formData); // Log form data for debugging
       const response = await fetch('http://localhost:8082/api/people', {
         method: 'POST',
         headers: {
@@ -112,14 +113,16 @@ function PersonSignupForm() {
         },
         body: JSON.stringify(formData),
       });
+      const responseData = await response.json();
       if (!response.ok) {
-        throw new Error('Failed to sign up');
+        console.error('Backend response error:', responseData);
+        throw new Error(`Failed to sign up: ${responseData.message}`);
       }
-      const data = await response.json();
+      console.log('Backend response:', responseData);
       setSuccess(true);
       setTimeout(() => {
         setRedirect(true);
-      }, 3000);
+      }, 1000);
     } catch (error) {
       if (error.name === 'ValidationError') {
         const validationErrors = {};
@@ -131,13 +134,13 @@ function PersonSignupForm() {
         setErrorMessage(error.message);
       }
     }
-  };
-
-  useEffect(() => {
-    if (redirect) {
-      window.location.href = '/';
-    }
-  }, [redirect]);
+    
+};
+useEffect(() => {
+  if (redirect) {
+    window.location.href = '/';
+  }
+}, [redirect]);
 
   return (
     <Box component="form" onSubmit={handleSubmit} >
@@ -252,8 +255,6 @@ function PersonSignupForm() {
         onMarkerDragEnd={handleMarkerDragEnd}
         pinType="person"
       />
-      {success && <div className="success-message">Please wait 3 seconds...</div>}
-      {errorMessage && <div className="error-message">{errorMessage}</div>}
       <Box sx={{ display: 'flex', justifyContent: 'center', marginTop: 2 }}>
         <Button
           variant="contained"
@@ -263,6 +264,9 @@ function PersonSignupForm() {
           Sign Up
         </Button>
       </Box>
+      {success && <div className="success-message">Please wait 3 seconds...</div>}
+      {errorMessage && <div className="error-message">{errorMessage}</div>}
+      
     </Box>
   );
 }

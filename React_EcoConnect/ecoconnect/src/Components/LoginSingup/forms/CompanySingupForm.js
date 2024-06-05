@@ -8,13 +8,13 @@ const companySchema = yup.object().shape({
   descriptionCompany: yup.string().required('Description is required'),
   email: yup.string().email('Invalid email address').required('Email is required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
-  street: yup.string().required('Street is required'),
-  number: yup.string().required('Number is required'),
-  building: yup.string().required('Building is required'),
+  street: yup.string().matches(/[a-zA-Z ]*$/).required('Street is required'),
+  number: yup.string().matches(/^[0-9-]*$/, 'Invalid number').required('Number is required'),
+  building: yup.string().matches(/[a-zA-Z0-9-]*$/).required('Building is required'),
   entrance: yup.string().required('Entrance is required'),
   apartNumber: yup.string().required('Apartment number is required'),
   companyNumberPhone: yup.string().matches(/^[0][7]([0-9]{8})$/, 'Invalid phone number').required('Phone number is required'),
-  companyCode: yup.string().required('Company code is required'),
+  companyCode: yup.string().matches(/[R][O]([0-9]+)*$/, 'Invalid company code ex"RO1234"').required('Company code is required'),
   materialName: yup.array()
     .of(yup.string()
       .matches(/^[a-zA-Z- ]*$/, 'Material name provided does not adhere to the specified field validation rules')
@@ -165,6 +165,8 @@ function CompanySignupForm() {
     try {
       await companySchema.validate(formData, { abortEarly: false });
       
+      console.log('Form Data:', formData); // Log form data for debugging
+
       const response = await fetch('http://localhost:8082/api/companies', {
         method: 'POST',
         headers: {
@@ -172,14 +174,18 @@ function CompanySignupForm() {
         },
         body: JSON.stringify(formData),
       });
+
+      const responseData = await response.json();
       if (!response.ok) {
-        throw new Error('Failed to sign up');
+        console.error('Backend response error:', responseData); // Log backend response for debugging
+        throw new Error(`Failed to sign up: ${responseData.message}`);
       }
-      const data = await response.json();
+
+      console.log('Backend response:', responseData); // Log successful response for debugging
       setSuccess(true);
       setTimeout(() => {
         setRedirect(true);
-      }, 3000);
+      }, 1000);
     } catch (error) {
       if (error.name === 'ValidationError') {
         const validationErrors = {};

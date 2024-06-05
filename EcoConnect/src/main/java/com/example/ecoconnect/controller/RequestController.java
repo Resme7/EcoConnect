@@ -64,17 +64,6 @@ public class RequestController {
                 validations.put("Results", "The requests will be created with succes.");
                 return new ResponseEntity<>(validations, HttpStatus.OK);
         }
-        @GetMapping("/history/{personId}")
-        public ResponseEntity<?> getRequestHistoryByPersonId(@PathVariable Long personId) {
-                List<Request> requestHistory = requestService.getAllByPersonIdMaterial(personId);
-                if (requestHistory.isEmpty()) {
-                        Map<String, String> responseMessage = new HashMap<>();
-                        responseMessage.put("message", "Istoricul cererilor nu a fost găsit.");
-                        return new ResponseEntity<>(responseMessage, HttpStatus.NOT_FOUND);
-                }
-                return new ResponseEntity<>(requestHistory, HttpStatus.OK);
-        }
-
 
         @GetMapping(value = "/{id}")
         public ResponseEntity getRequestById(@PathVariable Long id) {
@@ -101,18 +90,6 @@ public class RequestController {
                         requestDeletedMessage.put("message", MessageContent.REQUEST_DELETED);
                         return new ResponseEntity<>(requestDeletedMessage, HttpStatus.OK);
                 }
-        }
-        private ResponseEntity verifyAndGetRequestsOrderedByQuantity(Long id, List<RequestListDTO> requestListDTOS, DtoToEntity convertor) {
-                List<Request> requestList = requestService.getAllByUserIdOrderByQuantity(id);
-                if (requestList == null || requestList.size() == 0) {
-                        return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
-                } else {
-                        for (Request request : requestList) {
-                                RequestListDTO requestsListDto = convertor.convertorRequestListEntityToRequestListDTO(request);
-                                requestListDTOS.add(requestsListDto);
-                        }
-                }
-                return new ResponseEntity<>(requestListDTOS, HttpStatus.OK);
         }
 
         @GetMapping(value = "/person/{id}/requests")
@@ -191,6 +168,19 @@ public class RequestController {
 
                 return updateRequestAcceptedMethod(requestAcceptedDto);
         }
+        private ResponseEntity verifyAndGetRequestsOrderedByQuantity(Long id, List<RequestListDTO> requestListDTOS, DtoToEntity convertor) {
+                List<Request> requestList = requestService.getAllByUserIdOrderByQuantity(id);
+                if (requestList == null || requestList.size() == 0) {
+                        return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+                } else {
+                        for (Request request : requestList) {
+                                RequestListDTO requestsListDto = convertor.convertorRequestListEntityToRequestListDTO(request);
+                                requestListDTOS.add(requestsListDto);
+                        }
+                }
+                return new ResponseEntity<>(requestListDTOS, HttpStatus.OK);
+        }
+
 
 
         private boolean saveRequest(List<RequestDTO> requestDTOList, Long id, DtoToEntity convertor) {

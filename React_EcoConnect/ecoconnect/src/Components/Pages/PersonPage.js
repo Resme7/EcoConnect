@@ -34,6 +34,7 @@ function PersonPage() {
                 .then(response => {
                     if (response.status === 200) {
                         setRequests(response.data);
+                        console.log('Fetched requests:', response.data); // Log pentru debugging
                     }
                 })
                 .catch(error => console.error('Failed to fetch requests:', error));
@@ -49,7 +50,7 @@ function PersonPage() {
             fetchNearbyCompaniesRadius(user.id, radius)
                 .then(response => {
                     if (response.status === 200) {
-                        console.log('Companies:', response.data);
+                        console.log('Fetched companies:', response.data);
                         setCompanies(response.data);
                     }
                 })
@@ -57,19 +58,29 @@ function PersonPage() {
 
             fetchRequestHistoryByPersonId(user.personId)
                 .then(response => {
+                    console.log(user.personId)
                     if (response.status === 200) {
-                        const requestIds = response.data.filter(record => typeof record === 'number');
+                        const rawData = response.data;
+                        console.log("Raw Data:", rawData);
+                    
+                    // Aplicăm filtrul numai dacă este necesar
+                        const requestIds = rawData.map(record => typeof record === 'object' && record.hasOwnProperty('id') ? record.id : record);
+                    
+                        console.log("RequestIDS: ", requestIds)
                         Promise.all(requestIds.map(id => fetchRequestById(id)))
                             .then(async requestResponses => {
                                 const fullRequests = await Promise.all(requestResponses.map(async res => {
                                     const request = res.data;
+                                    console.log("Fetched request:", request); // Log pentru debugging
                                     if (request.material) {
+                                        console.log("Material", request.material)
                                         const materialResponse = await fetchMaterialById(request.material);
                                         request.material = materialResponse.data;
                                     }
                                     return request;
                                 }));
                                 setHistory(fullRequests);
+                                console.log('Full requests history:', fullRequests); // Log pentru debugging
                             })
                             .catch(error => console.error('Failed to fetch request details:', error));
                     }
@@ -100,15 +111,7 @@ function PersonPage() {
         setRadius(event.target.value);
     };
 
-    const handleRadiusSubmit = () => {
-        fetchNearbyCompaniesRadius(user.id, radius)
-            .then(response => {
-                if (response.status === 200) {
-                    setCompanies(response.data);
-                }
-            })
-            .catch(error => console.error('Failed to fetch nearby companies:', error));
-    };
+    
 
     if (!isLoaded) {
         return <div>Loading...</div>;
@@ -191,6 +194,7 @@ function PersonPage() {
                                     <p><strong>Materials:</strong> {selectedCompany.materialList ? selectedCompany.materialList.join(', ') : 'N/A'}</p>
                                     <p><strong>Email:</strong> {selectedCompany.email || 'N/A'}</p>
                                     <p><strong>Phone:</strong> {selectedCompany.companyNumberPhone || 'N/A'}</p>
+                                    <p><strong>Adress:</strong> {selectedCompany.address || 'N/A'}</p>
                                 </div>
                             </InfoWindow>
                         )}

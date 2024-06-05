@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import logo from '../Assets/ecoConnect.png';
-import { AppBar, Card, CardContent, Box, Toolbar, Typography, Button, Container, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import { AppBar, Card, CardContent, Box, Toolbar, Typography, Button, Container, CssBaseline } from '@mui/material';
 import { useUser } from '../Pages/util/UserContext';
-import { fetchUserById, deleteUserById } from './Service/Service';
+import { fetchUserById,  } from './Service/Service';
 
-function UserProfile() {
+function UserProfileCompany() {
     const { user, setUser } = useUser();
     const [userData, setUserData] = useState(null);
-    const [open, setOpen] = useState(false);
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (user && user.id) {
@@ -23,27 +21,7 @@ function UserProfile() {
         }
     }, [user]);
 
-    const handleDelete = () => {
-        if (user && user.id) {
-            deleteUserById(user.id)
-                .then(response => {
-                    if (response.status === 200) {
-                        setUser(null); 
-                        navigate('/'); 
-                    }
-                })
-                .catch(error => console.error('Failed to delete user:', error));
-        }
-    };
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
+    
     return (
         <Box>
             <CssBaseline />
@@ -53,7 +31,7 @@ function UserProfile() {
                     <Typography variant="h6" sx={{ flexGrow: 1, color:'#134611',textAlign: 'center', marginLeft: 'auto' }}>
                         Profile
                     </Typography>
-                    <Button color="inherit" component={RouterLink} to="/person" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Button color="inherit" component={RouterLink} to="/company" style={{ textDecoration: 'none', color: 'inherit' }}>
                         Back to Home
                     </Button>
                 </Toolbar>
@@ -65,23 +43,26 @@ function UserProfile() {
                             <Card sx={{ minWidth: 275 }}>
                                 <CardContent>
                                     <Typography variant="h5" component="div">
-                                        {userData.lastName} {userData.firstName}
+                                            {userData.companyName}
                                     </Typography>
                                     <br />
                                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        First Name: {userData.firstName}
+                                        Comapny Name: {userData.companyName}
                                     </Typography>
                                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        Last Name: {userData.lastName}
+                                        Description: {userData.description}
                                     </Typography>
                                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
                                         Email: {userData.email}
                                     </Typography>
                                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        Phone: {userData.numberPhone}
+                                        Phone: {userData.companyNumberPhone}
                                     </Typography>
                                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        Address: {userData.personAddress}
+                                        Company Code: {userData.companyCode}
+                                    </Typography>
+                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                        Address: {userData.companyAddress}
                                     </Typography>
                                 </CardContent>
                             </Card>
@@ -90,37 +71,11 @@ function UserProfile() {
                     <br></br>
                     
                 </Container>
-                <Box align='right'>
-                    <Button variant="contained" color="secondary" onClick={handleClickOpen}
-                    sx={{  bottom: 16, right: 16 }}>
-                        Delete Account
-                    </Button>
-                    </Box>
                 
             </div>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        Are you sure you want to delete your account? This action cannot be undone.
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose} color="primary">
-                        Cancel
-                    </Button>
-                    <Button onClick={handleDelete} color="secondary" autoFocus>
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            
         </Box>
     );
 }
 
-export default UserProfile;
+export default UserProfileCompany;

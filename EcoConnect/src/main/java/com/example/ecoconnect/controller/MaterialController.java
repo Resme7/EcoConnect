@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(value = "/api/materials")
 @RestController
 public class MaterialController {

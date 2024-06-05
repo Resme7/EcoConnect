@@ -36,7 +36,7 @@ public class CompanyDTO {
 
     @NotNull(message = "Required")
     @Size(max = 10, message = "Number provided does not adhere to the specified field validation rules")
-    @Pattern(message = "Number provided does not adhere to the specified field validation rules", regexp = "[0-9]*$")
+    @Pattern(message = "Number provided does not adhere to the specified field validation rules", regexp = "^[0-9-]*$")
     private String number;
 
     @NotNull(message = "Required")
