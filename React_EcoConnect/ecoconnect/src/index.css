@@ -6,7 +6,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  background-image: url("../src/Components/Assets/background_1.png");
+  background-image: url("../src/Components/Assets/background_F.jpg");
   background-size: cover;
   background-repeat:no-repeat;
   background-position: center; 
@@ -21,8 +21,8 @@ body:before{
   width: 100%;
   z-index: -1;
   opacity: 0.4;
-  /* transform: scale(0.4); 
-  transform: rotate(90deg); */
+  /* transform: scale(0.4);  */
+  transform: rotate(90deg); 
   transform-origin: center center;
 }
 code {

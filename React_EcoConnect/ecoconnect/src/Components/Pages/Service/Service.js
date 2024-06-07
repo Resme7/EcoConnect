@@ -40,8 +40,8 @@ const fetchNearbyCompaniesRadius = (personId, radius) => {
     return axios.get(`${API_BASE_URL}/users/nearby-companies/${personId}/${radius}`);
 };
 
-const fetchCompanyPracticeInfo = () => {
-    return axios.get('http://localhost:8082/api/users/nearby-companies/');
+const fetchCompanyById = (companyId) => {
+    return axios.get(`${API_BASE_URL}/companies/${companyId}`);
 };
 const fetchUserById = (userId) => {
     return axios.get(`${API_BASE_URL}/users/${userId}`);
@@ -51,7 +51,9 @@ const deleteUserById = (userId) => {
     return axios.delete(`${API_BASE_URL}/users/${userId}`);
 };
 
-export {deleteUserById, fetchUserById, fetchCompanyPracticeInfo, fetchMaterialById, fetchRequestById, fetchRequestByPersonId, fetchRequestHistoryByPersonId,
+
+
+export {fetchCompanyById, deleteUserById, fetchUserById, fetchMaterialById, fetchRequestById, fetchRequestByPersonId, fetchRequestHistoryByPersonId,
      createRequest,deleteRequestById, updateRequestOnHold, fetchNearbyCompaniesRadius };
 
 

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, TextField, Box, Container, CssBaseline, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Button, IconButton } from '@mui/material';
 import { useUser } from '../Pages/util/UserContext';
-import { fetchNearbyCompaniesRadius, fetchRequestByPersonId, fetchRequestHistoryByPersonId, deleteRequestById, fetchRequestById, fetchMaterialById, fetchCompanyPracticeInfo } from './Service/Service';
+import { fetchNearbyCompaniesRadius, fetchRequestByPersonId, fetchRequestHistoryByPersonId, deleteRequestById, fetchRequestById, fetchMaterialById } from './Service/Service';
 import logo from '../Assets/ecoConnect.png';
 import personPin from '../Assets/person-pin.png';
 import companyPin from '../Assets/company-pin.png';
@@ -114,7 +114,7 @@ function PersonPage() {
     
 
     if (!isLoaded) {
-        return <div>Loading...</div>;
+        navigate('/person')
     }
 
     return (
@@ -122,7 +122,7 @@ function PersonPage() {
             <CssBaseline />
             <AppBar position="static" color="default" elevation={0}>
                 <Toolbar>
-                    <img src={logo} alt="Logo" style={{ height: 50, position: 'fixed', top: 0, left: 0, margin: 10 }} />
+                <img src={logo} alt="Logo" style={{ height: 50, margin: 10 }} />
                     <Typography variant="h6" sx={{ flexGrow: 1, color:'#134611',textAlign: 'center', marginLeft: 'auto' }}>
                         Eco Connect
                     </Typography>
@@ -155,18 +155,13 @@ function PersonPage() {
                         center={center}
                         zoom={12}
                     >
-                         {[user].map((usr, index) => (
-                            usr && usr.latitude && usr.longitude && (
-                                <Marker
-                                    key={`user-marker-${index}`}
-                                    position={{ 
-                                        lat: parseFloat(usr.latitude), 
-                                        lng: parseFloat(usr.longitude) }}
-                                    icon={personPin}
-                                    title="Your Location"
-                                />
-                            )
-                        ))}
+                         {user && center.lat && center.lng && (
+                            <Marker
+                                position={{ lat: center.lat, lng: center.lng }}
+                                icon={personPin}
+                                title="Your Location"
+              />
+            )}
                         {companies.map((company, index) => (
                             company.latitude && company.longitude && (
                                 <Marker
