@@ -136,7 +136,6 @@ public class RequestController {
         }
 
         @PatchMapping(value = "/{id}/accept")
-
         public ResponseEntity updateRequestsOnHold(@PathVariable Long id, @RequestBody @Valid List<RequestOnHoldDTO> requestOnHoldDTOList) {
                 Company company = companyService.getByUserId(id);
 
