@@ -10,6 +10,9 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import EventIcon from '@mui/icons-material/Event';
 import logo from '../Assets/ecoConnect.png';
+import on_hold from '../Assets/hourglass_onhold.png';
+import processing from '../Assets/loading-processing.png';
+import completed from '../Assets/approved.png';
 import '../Pages/style/General_page.css';
 import { fetchCompanyById } from '../Pages/Service/Service';
 import { getNearbyUsersForCompany } from '../Pages/Service/userService';
@@ -19,6 +22,7 @@ import companyPin from '../Assets/company-pin.png';
 import personPin from '../Assets/person-pin.png';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { format } from 'date-fns';
+import './style/TableStyle.css';
 
 const mapContainerStyle = {
   height: '600px',
@@ -217,23 +221,29 @@ function CompanyPage() {
         
           {selectedUser && requestsOnHold.length > 0 && (
             <div style={{ marginTop: '20px' }}>
-              <Typography variant="h6">Pending requests for {selectedUser.name}:</Typography>
-              <TableContainer component={Paper}>
-                <Table>
+              <Typography variant="h6" align="center">Pending requests for {selectedUser.name}:</Typography>
+              <TableContainer component={Paper} className="table-container">
+                <div className='table-wrapper'>
+                <Table className="table">
                   <TableHead>
                     <TableRow>
                       <TableCell>Material</TableCell>
-                      <TableCell>DateCreated</TableCell>
+                      <TableCell>Created date</TableCell>
                       <TableCell>Status</TableCell>
-                      <TableCell>DateAccepted</TableCell>
+                      <TableCell>Accepted date</TableCell>
+                      <TableCell>Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {requestsOnHold.map(request => (
                       <TableRow key={request.id}>
                         <TableCell>{request.materialName}</TableCell>
-                        <TableCell>{request.dateRequestCreated}</TableCell>
-                        <TableCell>{request.status}</TableCell>
+                        {format(new Date(request.dateRequestCreated), 'dd/MM/yyyy HH:mm')}
+                        <TableCell>
+                          {request.status === 'ON_HOLD' && <img src={on_hold} alt="On Hold" style={{ height: 30 }} />}
+                          {request.status === 'PROCESSING' && <img src={processing} alt="Processing" style={{ height: 30 }} />}
+                          {request.status === 'COMPLETED' && <img src={completed} alt="Completed" style={{ height: 30 }} />}
+                        </TableCell>
                         <TableCell>
                           {requestDateTimes[request.id] ? format(requestDateTimes[request.id], 'dd/MM/yyyy HH:mm') : 'N/A'}
                           <IconButton onClick={() => handleIconClick(request)}>
@@ -248,21 +258,24 @@ function CompanyPage() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </TableContainer>
             </div>
           )}
           
           {selectedUser && requestsOrderedByQuantity.length > 0 && (
             <div style={{ marginTop: '20px' }}>
-              <Typography variant="h6">Requests ordered by quantity for {selectedUser.name}:</Typography>
-              <TableContainer component={Paper}>
-                <Table>
+              <Typography variant="h6" align="center">Requests ordered by quantity for {selectedUser.name}:</Typography>
+              <TableContainer component={Paper} className="table-container">
+                <div className='table-wrapper'>
+                <Table className="table">
                   <TableHead>
                     <TableRow>
                       <TableCell>Material</TableCell>
                       <TableCell>Quantity</TableCell>
                       <TableCell>Unit</TableCell>
                       <TableCell>Status</TableCell>
+                      <TableCell>Action</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -271,7 +284,11 @@ function CompanyPage() {
                         <TableCell>{request.materialName}</TableCell>
                         <TableCell>{request.quantity}</TableCell>
                         <TableCell>{request.unit}</TableCell>
-                        <TableCell>{request.status}</TableCell>
+                        <TableCell>
+                          {request.status === 'ON_HOLD' && <img src={on_hold} alt="On Hold" style={{ height: 30 }} />}
+                          {request.status === 'PROCESSING' && <img src={processing} alt="Processing" style={{ height: 30 }} />}
+                          {request.status === 'COMPLETED' && <img src={completed} alt="Completed" style={{ height: 30 }} />}
+                        </TableCell>
                         <TableCell>
                           {request.status === 'PROCESSING' && (
                             <Button onClick={() => handleFinishRequest(request.id)}>Finish</Button>
@@ -281,28 +298,30 @@ function CompanyPage() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </TableContainer>
             </div>
           )}
           
           {selectedCompanyDetails && (
             <div style={{ marginTop: '20px' }}>
-              <Typography variant="h6">Detalii companie:</Typography>
-              <TableContainer component={Paper}>
-                <Table>
+              <Typography variant="h6" align="center">Details company {selectedCompanyDetails.companyName}:</Typography>
+              <TableContainer component={Paper} className="table-container">
+                <div className='table-wrapper'>
+                <Table className="table">
                   <TableHead>
                     <TableRow>
-                      <TableCell>Proprietate</TableCell>
-                      <TableCell>Valoare</TableCell>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     <TableRow>
-                      <TableCell>Nume</TableCell>
+                      <TableCell>Name</TableCell>
                       <TableCell>{selectedCompanyDetails.companyName}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Telefon</TableCell>
+                      <TableCell>Phone</TableCell>
                       <TableCell>{selectedCompanyDetails.companyNumberPhone}</TableCell>
                     </TableRow>
                     <TableRow>
@@ -310,11 +329,12 @@ function CompanyPage() {
                       <TableCell>{selectedCompanyDetails.email}</TableCell>
                     </TableRow>
                     <TableRow>
-                      <TableCell>Adresă</TableCell>
+                      <TableCell>Address</TableCell>
                       <TableCell>{selectedCompanyDetails.address}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
+                </div>
               </TableContainer>
             </div>
           )}

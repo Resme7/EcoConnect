@@ -257,10 +257,10 @@ public class UserController {
         return validations;
     }
 
-//    private boolean validate(UserLoginDTO userLoginTO, String email, String password) {
-//        String encryptPwd = EncryptDecrypt.encrypt(userLoginDTO.getPassword(), MessageContent.SECRET_KEY);
-//        return userLoginDTO.getEmail().equals(email) && encryptPwd.equals(password);
-//    }
+    private boolean validate(UserLoginDTO userLoginDTO, String email, String password) {
+        String encryptPwd = CryptPassword.encrypt(userLoginDTO.getPassword(), MessageContent.SECRET_KEY);
+        return userLoginDTO.getEmail().equals(email) && encryptPwd.equals(password);
+    }
 
     private List<PersonNearbyDTO> setNearbyPerson(Double latitude, Double longitude) {
         List<Person> nearbyPerson = distanceBetweenUsers.getAllNearbyPersonWithStatusOnHold(latitude, longitude);

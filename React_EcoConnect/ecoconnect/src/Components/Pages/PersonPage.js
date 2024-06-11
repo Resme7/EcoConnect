@@ -6,8 +6,12 @@ import { fetchNearbyCompaniesRadius, fetchRequestByPersonId, fetchRequestHistory
 import logo from '../Assets/ecoConnect.png';
 import personPin from '../Assets/person-pin.png';
 import companyPin from '../Assets/company-pin.png';
+import on_hold from '../Assets/hourglass_onhold.png';
+import processing from '../Assets/loading-processing.png';
+import completed from '../Assets/approved.png';
 import { GoogleMap, Marker, InfoWindow, useJsApiLoader } from '@react-google-maps/api';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import './style/TableStyle.css';
 
 const mapContainerStyle = {
     height: "600px",
@@ -208,8 +212,9 @@ function PersonPage() {
                             <Typography variant="h5" align="center" mt={4}>
                                 Request History
                             </Typography>
-                            <TableContainer component={Paper}>
-                                <Table>
+                            <TableContainer component={Paper} className="table-container">
+                            <div className='table-wrapper'>
+                                <Table className="table">
                                     <TableHead>
                                         <TableRow>
                                             <TableCell>Material</TableCell>
@@ -226,7 +231,11 @@ function PersonPage() {
                                                 <TableCell>{record.material ? record.material.materialName : 'Unknown'}</TableCell>
                                                 <TableCell>{record.quantity || 'N/A'}</TableCell>
                                                 <TableCell>{record.unit || 'N/A'}</TableCell>
-                                                <TableCell>{record.status || 'N/A'}</TableCell>
+                                                <TableCell>
+                                                    {record.status === 'ON_HOLD' && <img src={on_hold} alt="On Hold" style={{ height: 30 }} />}
+                                                    {record.status === 'PROCESSING' && <img src={processing} alt="Processing" style={{ height: 30 }} />}
+                                                    {record.status === 'COMPLETED' && <img src={completed} alt="Completed" style={{ height: 30 }} />}
+                                                </TableCell>
                                                 <TableCell>{record.dateRequestCreated ? new Date(record.dateRequestCreated).toLocaleDateString() : 'N/A'}</TableCell>
                                                 <TableCell>
                                                     <Button
@@ -241,6 +250,7 @@ function PersonPage() {
                                         ))}
                                     </TableBody>
                                 </Table>
+                                    </div>
                             </TableContainer>
                         </div>
                     )}
