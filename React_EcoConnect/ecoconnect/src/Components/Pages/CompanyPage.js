@@ -15,10 +15,10 @@ import on_hold from '../Assets/hourglass_onhold.png';
 import processing from '../Assets/loading-processing.png';
 import completed from '../Assets/approved.png';
 import '../Pages/style/General_page.css';
-import { fetchCompanyById } from '../Pages/Service/Service';
+import { fetchCompanyById, fetchMaterialsByCompany, fetchMaterialById } from '../Pages/Service/Service';
 import { getNearbyUsersForCompany } from '../Pages/Service/userService';
 import { getAllRequestsOnHold, getAllRequestsByUserId, acceptRequest, deleteRequest, finishRequest } from '../Pages/Service/requestService';
-import {fetchRequestsAccepted} from '../Pages/Service/Service'
+import { fetchRequestsAccepted } from '../Pages/Service/Service';
 import { useUser } from '../Pages/util/UserContext';
 import companyPin from '../Assets/company-pin.png';
 import personPin from '../Assets/person-pin.png';
@@ -43,18 +43,19 @@ function CompanyPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeRequest, setActiveRequest] = useState(null);
   const [requestsAccepted, setRequestsAccepted] = useState([]);
+  const [specializedMaterials, setSpecializedMaterials] = useState([]);
+  const [materialNames, setMaterialNames] = useState({});
   const navigate = useNavigate();
   const [companyData, setCompanyData] = useState(null);
   const [requestDateTimes, setRequestDateTimes] = useState({});
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk', 
+    googleMapsApiKey: 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk',
   });
 
   const fetchCompanyDetails = async (companyId) => {
     try {
       const companyData = await fetchCompanyById(companyId);
-      console.log("company", companyData.data)
       if (companyData && companyData.data.latitude && companyData.data.longitude) {
         const newCenter = {
           lat: parseFloat(companyData.data.latitude),
@@ -62,7 +63,7 @@ function CompanyPage() {
         };
         setCenter(newCenter);
         setCompanyData(companyData.data);
-        console.log('Company location:', newCenter);
+        await getMaterialsByCompany(companyId); // Fetch the materials
       }
     } catch (error) {
       console.error('Error fetching company data:', error);
@@ -77,21 +78,36 @@ function CompanyPage() {
       console.error('Error fetching nearby locations:', error);
     }
   };
+
   const getRequestsAccepted = async (userId) => {
     try {
       const response = await fetchRequestsAccepted(userId);
-      console.log("request accepted", response.data)
       setRequestsAccepted(response.data);
     } catch (error) {
-      console.error('Error fetching nearby locations:', error);
+      console.error('Error fetching accepted requests:', error);
+    }
+  };
+
+  const getMaterialsByCompany = async (companyId) => {
+    try {
+      const response = await fetchMaterialsByCompany(companyId);
+      const materialIds = response.data;
+      const materialNamesMap = {};
+      await Promise.all(materialIds.map(async (materialId) => {
+        const materialResponse = await fetchMaterialById(materialId);
+        materialNamesMap[materialId] = materialResponse.data.materialName;
+        console.log("MaterialNamesMap", materialNamesMap);
+      }));
+      setSpecializedMaterials(Object.values(materialNamesMap));
+      setMaterialNames(materialNamesMap);
+    } catch (error) {
+      console.error('Error fetching company materials:', error);
     }
   };
 
   useEffect(() => {
     if (user && user.id) {
-      console.log('user', user);
       fetchCompanyDetails(user.companyId);
-      
     }
   }, [user]);
 
@@ -103,7 +119,8 @@ function CompanyPage() {
 
   useEffect(() => {
     if (user && user.id) {
-      getRequestsAccepted(user.id)
+      getRequestsAccepted(user.id);
+      
     }
   }, [user]);
 
@@ -120,7 +137,7 @@ function CompanyPage() {
     setSelectedCompanyDetails(null);
     setSelectedUserRequests([]);
     setRequestsOnHold([]);
-    setRequestsAccepted([]);
+    
     if (location.role === 'Person') {
       setSelectedUser(location);
       getAllRequestsByUserId(location.id).then(response => {
@@ -133,10 +150,15 @@ function CompanyPage() {
       }).catch(error => {
         console.error('Error fetching requests on hold:', error);
       });
+      console.log("LocationPerson", location)
     } else if (location.role === 'Company') {
       setSelectedCompanyDetails(location);
+      console.log("LocationCompany", location)
+      
     }
+    
   };
+
 
   const handleAcceptRequest = (requestId) => {
     if (companyData) {
@@ -171,15 +193,14 @@ function CompanyPage() {
   };
 
   const handleFinishRequest = (requestId) => {
-      finishRequest(requestId).then(() => {
-        const updatedRequestsAccepted = requestsAccepted.map(request => 
-          request.id === requestId ? { ...request} : request
-        );
-        setRequestsAccepted(updatedRequestsAccepted);
-      }).catch(error => {
-        console.error('Error finishing request:', error);
-      });
-    
+    finishRequest(requestId).then(() => {
+      const updatedRequestsAccepted = requestsAccepted.map(request => 
+        request.id === requestId ? { ...request } : request
+      );
+      setRequestsAccepted(updatedRequestsAccepted);
+    }).catch(error => {
+      console.error('Error finishing request:', error);
+    });
   };
 
   const handleDateTimeChange = (requestId, newValue) => {
@@ -199,6 +220,16 @@ function CompanyPage() {
     setActiveRequest(null);
   };
 
+  const filteredRequestsOnHold = [];
+  requestsOnHold.forEach(request => {
+    if (specializedMaterials.includes(request.materialName)) {
+      filteredRequestsOnHold.push(request);
+    }
+    console.log(filteredRequestsOnHold)
+  });
+
+  
+
   if (!isLoaded) {
     return <div>Loading...</div>;
   }
@@ -216,154 +247,171 @@ function CompanyPage() {
               <AccountCircleIcon />
             </IconButton>
             <IconButton color="inherit" onClick={handleLogout}>
-                        <LogoutIcon />
-                    </IconButton>
+              <LogoutIcon />
+            </IconButton>
           </Toolbar>
         </AppBar>
         <div className="page-container">
           <Container maxWidth="md" style={{ marginTop: '20px' }}>
             <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={12}>
-              {user && center.lat && center.lng &&  (
+              {user && center.lat && center.lng && (
                 <Marker
                   position={{ lat: parseFloat(center.lat), lng: parseFloat(center.lng) }}
                   icon={personPin}
                   title="Company Location"
                 />
               )}
-              {nearbyLocations.map((location, index) => (
-                <Marker
-                  key={index}
-                  position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
-                  icon={location.role === 'Company' ? companyPin : requestPin}
-                  title={location.role === 'Company' ? location.companyName : location.name}
-                  onClick={() => handleMarkerClick(location)}
-                />
-              ))}
+             {nearbyLocations.map((location, index) => {
+        
+        if (location.role === 'Company') {
+          return (
+            <Marker
+              key={index}
+              position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
+              icon={companyPin}
+              title={location.companyName}
+              onClick={() => handleMarkerClick(location)}
+            />
+          );
+        } else {
+          const hasRequiredMaterial = location.requestsMaterialsPerson && filteredRequestsOnHold.some(request => location.requestsMaterialsPerson.includes(request.materialName));
+          return hasRequiredMaterial ? (
+            <Marker
+              key={index}
+              position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
+              icon={requestPin}
+              title={location.name}
+              onClick={() => handleMarkerClick(location)}
+            />
+          ) : null;
+        }
+      })}
             </GoogleMap>
           </Container>
-        
-          {selectedUser && requestsOnHold.length > 0 && (
-            <div style={{ marginTop: '20px' }}>
-              <Typography variant="h6" align="center">Pending requests for {selectedUser.name}:</Typography>
-              <TableContainer component={Paper} className="table-container">
-                <div className='table-wrapper'>
-                <Table className="table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Material</TableCell>
-                      <TableCell>Created date</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Accepted date</TableCell>
-                      <TableCell>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {requestsOnHold.map(request => (
-                      <TableRow key={request.id}>
-                        <TableCell>{request.materialName}</TableCell>
-                        {format(new Date(request.dateRequestCreated), 'dd/MM/yyyy HH:mm')}
-                        <TableCell>
-                          {request.status === 'ON_HOLD' && <img src={on_hold} alt="On Hold" style={{ height: 30 }} />}
-                          {request.status === 'PROCESSING' && <img src={processing} alt="Processing" style={{ height: 30 }} />}
-                          {request.status === 'COMPLETED' && <img src={completed} alt="Completed" style={{ height: 30 }} />}
-                        </TableCell>
-                        <TableCell>
-                          {requestDateTimes[request.id] ? format(requestDateTimes[request.id], 'dd/MM/yyyy HH:mm') : 'N/A'}
-                          <IconButton onClick={() => handleIconClick(request)}>
-                            <EventIcon />
-                          </IconButton>
-                        </TableCell>
-                        <TableCell>
-                          <Button onClick={() => handleAcceptRequest(request.id)}>Accept</Button>
-                          <Button onClick={() => handleDeleteRequest(request.id)}>Delete</Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-                </div>
-              </TableContainer>
-            </div>
-          )}
-          
-          {requestsAccepted.length > 0 && (
+
+          {requestsAccepted && requestsAccepted.length > 0 && (
             <div style={{ marginTop: '20px' }}>
               <Typography variant="h6" align="center">Requests Accepted:</Typography>
               <TableContainer component={Paper} className="table-container">
-                <div className='table-wrapper'>
-                <Table className="table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Material</TableCell>
-                      <TableCell>Quantity</TableCell>
-                      <TableCell>Unit</TableCell>
-                      <TableCell>Status</TableCell>
-                      <TableCell>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {requestsAccepted.map(request => (
-                      <TableRow key={request.id}>
-                        <TableCell>{request.materialName}</TableCell>
-                        <TableCell>{request.quantity}</TableCell>
-                        <TableCell>{request.unit}</TableCell>
-                        <TableCell>
-                          {request.status === 'PROCESSING' && <img src={processing} alt="Processing" style={{ height: 30 }} />}
-                          {request.status === 'COMPLETED' && <img src={completed} alt="Completed" style={{ height: 30 }} />}
-                        </TableCell>
-                        <TableCell>
-                          {request.status === 'PROCESSING' && (
-                            <Button onClick={() => handleFinishRequest(request.id)}>Finish</Button>
-                          )}
-                        </TableCell>
+                <div className="table-wrapper">
+                  <Table className="table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Material</TableCell>
+                        <TableCell>Quantity</TableCell>
+                        <TableCell>Unit</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell>Action</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHead>
+                    <TableBody>
+                      {requestsAccepted.map(request => (
+                        <TableRow key={request.id}>
+                          <TableCell>{request.materialName}</TableCell>
+                          <TableCell>{request.quantity}</TableCell>
+                          <TableCell>{request.unit}</TableCell>
+                          <TableCell>
+                            {request.status === 'PROCESSING' && <img src={processing} title="Processing" alt= "Processing" style={{ height: 30 }} />}
+                            {request.status === 'COMPLETED' && <img src={completed} title="Completed" alt= "Completed" style={{ height: 30 }} />}
+                          </TableCell>
+                          <TableCell>
+                            {request.status === 'PROCESSING' && (
+                              <Button onClick={() => handleFinishRequest(request.id)}>Finish</Button>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               </TableContainer>
             </div>
           )}
-          
+
+          {selectedUser && filteredRequestsOnHold.length > 0 && (
+            <div style={{ marginTop: '20px' }}>
+              <Typography variant="h6" align="center">Pending requests for {selectedUser.name}:</Typography>
+              <TableContainer component={Paper} className="table-container">
+                <div className="table-wrapper">
+                  <Table className="table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Material</TableCell>
+                        <TableCell>Created date</TableCell>
+                        <TableCell>Status</TableCell>
+                        <TableCell>Accepted date</TableCell>
+                        <TableCell>Action</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredRequestsOnHold.map(request => (
+                        <TableRow key={request.id}>
+                          <TableCell>{request.materialName}</TableCell>
+                          <TableCell>{format(new Date(request.dateRequestCreated), 'dd/MM/yyyy HH:mm')}</TableCell>
+                          <TableCell>
+                            {request.status === 'ON_HOLD' && <img src={on_hold} title="On Hold" alt = "On Hold" style={{ height: 30 }} />}
+                            {request.status === 'PROCESSING' && <img src={processing} title="Processing" alt="Processing" style={{ height: 30 }} />}
+                            {request.status === 'COMPLETED' && <img src={completed} title="Completed" alt="Completed"  style={{ height: 30 }} />}
+                          </TableCell>
+                          <TableCell>
+                            {requestDateTimes[request.id] ? format(requestDateTimes[request.id], 'dd/MM/yyyy HH:mm') : 'N/A'}
+                            <IconButton onClick={() => handleIconClick(request)}>
+                              <EventIcon />
+                            </IconButton>
+                          </TableCell>
+                          <TableCell>
+                            <Button onClick={() => handleAcceptRequest(request.id)}>Accept</Button>
+                            <Button onClick={() => handleDeleteRequest(request.id)}>Delete</Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </TableContainer>
+            </div>
+          )}
+
           {selectedCompanyDetails && (
             <div style={{ marginTop: '20px' }}>
               <Typography variant="h6" align="center">Details company {selectedCompanyDetails.companyName}:</Typography>
               <TableContainer component={Paper} className="table-container">
-                <div className='table-wrapper'>
-                <Table className="table">
-                  <TableHead>
-                    <TableRow>
-                      <TableCell></TableCell>
-                      <TableCell></TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    <TableRow>
-                      <TableCell>Name</TableCell>
-                      <TableCell>{selectedCompanyDetails.companyName}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Phone</TableCell>
-                      <TableCell>{selectedCompanyDetails.companyNumberPhone}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Email</TableCell>
-                      <TableCell>{selectedCompanyDetails.email}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Address</TableCell>
-                      <TableCell>{selectedCompanyDetails.address}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell>Materials</TableCell>
-                      <TableCell>{selectedCompanyDetails.materialList + " "}</TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                <div className="table-wrapper">
+                  <Table className="table">
+                    <TableHead>
+                      <TableRow>
+                        <TableCell></TableCell>
+                        <TableCell></TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      <TableRow>
+                        <TableCell>Name</TableCell>
+                        <TableCell>{selectedCompanyDetails.companyName}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Phone</TableCell>
+                        <TableCell>{selectedCompanyDetails.companyNumberPhone}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Email</TableCell>
+                        <TableCell>{selectedCompanyDetails.email}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Address</TableCell>
+                        <TableCell>{selectedCompanyDetails.address}</TableCell>
+                      </TableRow>
+                      <TableRow>
+                        <TableCell>Materials</TableCell>
+                        <TableCell>{selectedCompanyDetails.materialList.join(", ")}</TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
                 </div>
               </TableContainer>
             </div>
           )}
+
           <Dialog open={dialogOpen} onClose={handleDialogClose}>
             <DialogTitle>Select Date & Time</DialogTitle>
             <DialogContent>

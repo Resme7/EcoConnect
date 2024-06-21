@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Box, FormHelperText } from '@mui/material';
+import { TextField, Button, Box, InputAdornment, IconButton} from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import Map from './Map';
 import * as yup from 'yup';
 
@@ -154,6 +155,18 @@ useEffect(() => {
           helperText={errors.firstName}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "Popescu", the first letter to be uppercase, max 30 characters')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Last Name"
@@ -164,6 +177,18 @@ useEffect(() => {
           helperText={errors.lastName}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "Ion", the first letter to be uppercase, max 30 characters')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Email"
@@ -175,6 +200,18 @@ useEffect(() => {
           helperText={errors.email}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "example12@gmail.com", max 50 characters')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Password"
@@ -186,6 +223,18 @@ useEffect(() => {
           helperText={errors.password}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "Password123",min 8 characters, max 50 characters')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Phone Number"
@@ -196,6 +245,18 @@ useEffect(() => {
           helperText={errors.numberPhone}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "0712345678", the phone number must begin with 07 followed by 8 numbers ')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Building"
@@ -206,6 +267,18 @@ useEffect(() => {
           helperText={errors.building}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "12" or "A", max 10 characters')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Entrance"
@@ -216,6 +289,18 @@ useEffect(() => {
           helperText={errors.entrance}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "12" or "A", max 10 characters')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Apartment Number"
@@ -226,6 +311,18 @@ useEffect(() => {
           helperText={errors.apartNumber}
           fullWidth
           margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="info"
+                  onClick={() => alert('Example: "221", max 10 numbers ')}
+                >
+                  <InfoIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
         <TextField
           label="Street"

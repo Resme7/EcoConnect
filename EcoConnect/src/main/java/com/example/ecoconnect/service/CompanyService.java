@@ -20,4 +20,6 @@ public interface CompanyService {
     Company saveCompany(Company company);
 
     List<Long> getCompanyByMaterialName(String materialName);
+
+    List<Long> getMaterialIdsByCompanyId(Long companyId);
 }

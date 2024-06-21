@@ -9,7 +9,6 @@ import java.util.List;
 @Setter
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 public class CompanyDetailPracticeDTO {
     private Long id;

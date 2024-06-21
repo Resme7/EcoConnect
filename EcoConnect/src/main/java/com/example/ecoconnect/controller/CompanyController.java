@@ -1,8 +1,6 @@
 package com.example.ecoconnect.controller;
 
-import com.example.ecoconnect.dto.CollectionStationDTO;
-import com.example.ecoconnect.dto.CompanyDTO;
-import com.example.ecoconnect.dto.OrderListDTO;
+import com.example.ecoconnect.dto.*;
 import com.example.ecoconnect.dto.convertor.DtoToEntity;
 import com.example.ecoconnect.entities.*;
 import com.example.ecoconnect.service.CompanyService;
@@ -18,6 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin
@@ -83,6 +82,19 @@ public class CompanyController {
                         return new ResponseEntity<>(company, HttpStatus.OK);
                 }
         }
+
+        @GetMapping(value = "/{id}/company-materials")
+        public ResponseEntity<?> getCompanyByMaterialName(@PathVariable Long id) {
+                Company company = companyService.getCompanyById(id);
+                if (company == null) {
+                        Map<String, String> companyNullMessage = new HashMap<>();
+                        companyNullMessage.put("message", "Company not found");
+                        return new ResponseEntity<>(companyNullMessage, HttpStatus.NOT_FOUND);
+                } else {
+                        List<Long> materialIds = companyService.getMaterialIdsByCompanyId(id);
+                        return new ResponseEntity<>(materialIds, HttpStatus.OK);
+                }
+        }
         @GetMapping("/material/{materialName}")
         public ResponseEntity<List<Long>> getCompaniesByMaterialName(@PathVariable String materialName) {
                  List<Long> companies = companyService.getCompanyByMaterialName(materialName);
@@ -98,19 +110,33 @@ public class CompanyController {
                 Company company = companyService.getByUserId(id);
                 if (company == null)
                         return new ResponseEntity("Company not found.", HttpStatus.NOT_FOUND);
-                if(requestService.getAllByPersonUserIdAndStatus(id, Status.PROCESSING)==null || requestService.getAllByCompanyUserIdAndStatus(id,Status.PROCESSING).size()==0){
+
+                List<Request> processingRequests = requestService.getAllByCompanyUserIdAndStatus(id, Status.PROCESSING);
+                List<Request> completedRequests = requestService.getAllByCompanyUserIdAndStatus(id, Status.COMPLETED);
+
+                if ((processingRequests == null || processingRequests.isEmpty()) &&
+                        (completedRequests == null || completedRequests.isEmpty())) {
                         return new ResponseEntity(Collections.emptyList(), HttpStatus.OK);
-                }
-                else{
+                } else {
                         List<OrderListDTO> orderList = new ArrayList<>();
-                        for(Request request : requestService.getAllByCompanyUserIdAndStatus(id, Status.PROCESSING)){
-                                DtoToEntity convertor = new DtoToEntity();
-                                OrderListDTO orderListDTO = convertor.convertorRequestEntityToOrderListDTO(request);
-                                orderList.add(orderListDTO);
+                        if (processingRequests != null) {
+                                for (Request request : processingRequests) {
+                                        DtoToEntity convertor = new DtoToEntity();
+                                        OrderListDTO orderListDTO = convertor.convertorRequestEntityToOrderListDTO(request);
+                                        orderList.add(orderListDTO);
+                                }
+                        }
+                        if (completedRequests != null) {
+                                for (Request request : completedRequests) {
+                                        DtoToEntity convertor = new DtoToEntity();
+                                        OrderListDTO orderListDTO = convertor.convertorRequestEntityToOrderListDTO(request);
+                                        orderList.add(orderListDTO);
+                                }
                         }
                         return new ResponseEntity<>(orderList, HttpStatus.OK);
                 }
         }
+
 
         @GetMapping
         public ResponseEntity getAllCompanies() {

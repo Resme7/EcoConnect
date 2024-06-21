@@ -42,7 +42,7 @@ public class Company {
     @Column(name = "company_longitude", nullable = false)
     private String longitude;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(
             name = "material_company",
             joinColumns = @JoinColumn(name = "company_id"),
@@ -55,7 +55,13 @@ public class Company {
 
     @OneToOne
     private User user;
-
+    @PostLoad
+    public void logMaterials() {
+        System.out.println("Material List for Company ID " + companyId + ":");
+        for (Material material : materialList) {
+            System.out.println("Material ID: " + material.getMaterialId() + ", Material Name: " + material.getMaterialName());
+        }
+    }
 
     public void setName(String companyName){
         this.companyName=companyName;

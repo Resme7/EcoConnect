@@ -44,4 +44,9 @@ public class CompanyServiceImplement implements CompanyService {
     public List<Long> getCompanyByMaterialName(String materialName) {
         return companyRepository.findByMaterialName(materialName);
     }
+
+    @Override
+    public List<Long> getMaterialIdsByCompanyId(Long companyId){
+        return companyRepository.findMaterialIdsByCompanyId(companyId);
+    }
 }

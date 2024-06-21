@@ -66,9 +66,12 @@ const deleteUserById = (userId) => {
     return axios.delete(`${API_BASE_URL}/users/${userId}`);
 };
 
+const fetchMaterialsByCompany = (companyId) =>{
+    return axios.get(`${API_BASE_URL}/companies/${companyId}/company-materials`)
+}
 
 
-export {fetchRequestsAccepted, fetchCompaniesByMaterial, fetchAllMaterials, fetchRequestByCompanyId, fetchCompanyById, deleteUserById, fetchUserById, fetchMaterialById, fetchRequestById, fetchRequestByPersonId, fetchRequestHistoryByPersonId,
+export {fetchMaterialsByCompany, fetchRequestsAccepted, fetchCompaniesByMaterial, fetchAllMaterials, fetchRequestByCompanyId, fetchCompanyById, deleteUserById, fetchUserById, fetchMaterialById, fetchRequestById, fetchRequestByPersonId, fetchRequestHistoryByPersonId,
      createRequest,deleteRequestById, updateRequestOnHold, fetchNearbyCompaniesRadius };
 
 

@@ -31,7 +31,7 @@ public class CompanyDTO {
 
     @NotNull(message = "Required")
     @Size(max = 30, message = "Street provided does not adhere to the specified field validation rules")
-    @Pattern(message = "Street provided does not adhere to the specified field validation rules", regexp = "[a-zA-Z ]*$")
+    @Pattern(message = "Street provided does not adhere to the specified field validation rules",  regexp = "^[a-zA-ZăîâĂÎÂ ]*$")
     private String street;
 
     @NotNull(message = "Required")

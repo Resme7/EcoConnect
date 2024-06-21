@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Select, MenuItem, InputLabel, FormControl, FormHelperText, Box } from '@mui/material';
+import { TextField, Button, Select, MenuItem, InputLabel, FormControl, FormHelperText, Box,InputAdornment, IconButton } from '@mui/material';
+import InfoIcon from '@mui/icons-material/Info';
 import Map from './Map';
 import * as yup from 'yup';
 
@@ -8,7 +9,7 @@ const companySchema = yup.object().shape({
   descriptionCompany: yup.string().required('Description is required'),
   email: yup.string().email('Invalid email address').required('Email is required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
-  street: yup.string().matches(/[a-zA-Z ]*$/).required('Street is required'),
+  street: yup.string().matches(/^[a-zA-ZăîâĂÎÂ ]*$/, 'Invalid street name').required('Street is required'),
   number: yup.string().matches(/^[0-9-]*$/, 'Invalid number').required('Number is required'),
   building: yup.string().matches(/[a-zA-Z0-9-]*$/).required('Building is required'),
   entrance: yup.string().required('Entrance is required'),
@@ -218,6 +219,18 @@ function CompanySignupForm() {
             helperText={errors.companyName}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example "EcoConnect", max 50 ')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Description"
@@ -228,6 +241,18 @@ function CompanySignupForm() {
             helperText={errors.descriptionCompany}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Length: Max 200 words')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Email"
@@ -239,6 +264,18 @@ function CompanySignupForm() {
             helperText={errors.email}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example: "example12@gmail.com", max 50 characters')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Password"
@@ -250,6 +287,18 @@ function CompanySignupForm() {
             helperText={errors.password}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example: "Password123", min 8 characters, max 50 characters')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Company Phone Number"
@@ -260,6 +309,18 @@ function CompanySignupForm() {
             helperText={errors.companyNumberPhone}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example: "0712345678", the phone number must begin with 07 followed by 8 numbers ')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Company Code"
@@ -270,6 +331,18 @@ function CompanySignupForm() {
             helperText={errors.companyCode}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example: "RO1234", the company code must begin with RO followed by 4-10 numbers ')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Building"
@@ -280,6 +353,18 @@ function CompanySignupForm() {
             helperText={errors.building}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example: "12" or "A", max 10 characters')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Entrance"
@@ -290,6 +375,18 @@ function CompanySignupForm() {
             helperText={errors.entrance}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example: "12" or "A", max 10 characters ')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Apartment Number"
@@ -300,6 +397,18 @@ function CompanySignupForm() {
             helperText={errors.apartNumber}
             fullWidth
             margin="dense"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="info"
+                    onClick={() => alert('Example: "221", max 10 numbers ')}
+                  >
+                    <InfoIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
           <TextField
             label="Street"
