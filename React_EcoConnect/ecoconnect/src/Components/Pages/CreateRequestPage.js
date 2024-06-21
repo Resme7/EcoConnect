@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
     AppBar, Toolbar, Typography, Button, TextField, Container, CssBaseline,
-    MenuItem, Select, FormControl, InputLabel, FormHelperText
+    MenuItem, Select, FormControl, InputLabel, FormHelperText, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton
 } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import Home from '@mui/icons-material/Home'
 import logo from '../Assets/ecoConnect.png';
 import { useUser } from '../Pages/util/UserContext';
 import { createRequest } from './Service/Service';
-import { Link } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
 import './style/General_page.css';
 
 function CreateRequestPage() {
@@ -18,6 +21,10 @@ function CreateRequestPage() {
     const [error, setError] = useState('');
     const [materials, setMaterials] = useState([]);
     const [fetchError, setFetchError] = useState('');
+    const [openDialog, setOpenDialog] = useState(false);
+    const [currentEditItem, setCurrentEditItem] = useState(null);
+    const [editIndex, setEditIndex] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchMaterials = async () => {
@@ -44,11 +51,7 @@ function CreateRequestPage() {
                 unit
             };
 
-            setSelectedMaterials(prevMaterials => {
-                const updatedMaterials = [...prevMaterials, newItem];
-                console.log('Current list:', updatedMaterials);
-                return updatedMaterials;
-            });
+            setSelectedMaterials(prevMaterials => [...prevMaterials, newItem]);
 
             setMaterialName('');
             setQuantity('');
@@ -59,12 +62,9 @@ function CreateRequestPage() {
     };
 
     const handleCreateRequest = () => {
-        console.log('Attempting to create request...', { user, selectedMaterials });
         if (user && user.id && selectedMaterials.length > 0) {
-            console.log('Conditions met, sending request...');
             createRequest(user.id, selectedMaterials)
                 .then(response => {
-                    console.log('Request response:', response);
                     if (response.status === 200) {
                         alert('Request created successfully!');
                     } else {
@@ -82,6 +82,33 @@ function CreateRequestPage() {
         }
     };
 
+    const handleEdit = (index) => {
+        setCurrentEditItem(selectedMaterials[index]);
+        setEditIndex(index);
+        setOpenDialog(true);
+    };
+
+    const handleDelete = (index) => {
+        setSelectedMaterials(prevMaterials => prevMaterials.filter((_, i) => i !== index));
+    };
+
+    const handleDialogClose = () => {
+        setOpenDialog(false);
+        setCurrentEditItem(null);
+        setEditIndex(null);
+    };
+
+    const handleDialogSave = () => {
+        setSelectedMaterials(prevMaterials => 
+            prevMaterials.map((item, index) => (index === editIndex ? currentEditItem : item))
+        );
+        handleDialogClose();
+    };
+
+    const handlePerson = () => {
+        navigate('/person');
+    };
+
     return (
         <div>
             <CssBaseline />
@@ -91,9 +118,9 @@ function CreateRequestPage() {
                     <Typography variant="h6" sx={{ flexGrow: 1, color: '#134611', textAlign: 'center', marginLeft: 'auto' }}>
                         Create Request
                     </Typography>
-                    <Button color="inherit">
-                        <Link to="/person" style={{ textDecoration: 'none', color: 'inherit' }}>Back to Home</Link>
-                    </Button>
+                    <IconButton onClick={() => handlePerson()}>
+                            <Home />
+                        </IconButton>
                 </Toolbar>
             </AppBar>
 
@@ -145,9 +172,81 @@ function CreateRequestPage() {
                     Add to List
                 </Button>
 
+                {selectedMaterials.map((item, index) => (
+                    <div key={index} style={{ display: 'flex', alignItems: 'center', marginTop: 10 }}>
+                        <Typography style={{ flex: 1 }}>
+                            {item.quantity} {item.unit} of {item.materialName}
+                        </Typography>
+                        <IconButton onClick={() => handleEdit(index)}>
+                            <EditIcon />
+                        </IconButton>
+                        <IconButton onClick={() => handleDelete(index)}>
+                            <DeleteIcon />
+                        </IconButton>
+                    </div>
+                ))}
+
                 <Button variant="contained" onClick={handleCreateRequest} style={{ marginTop: 20 }}>
                     Create Request
                 </Button>
+
+                <Dialog open={openDialog} onClose={handleDialogClose}>
+                    <DialogTitle>Edit Material</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Modify the details of the selected material.
+                        </DialogContentText>
+                        <FormControl fullWidth style={{ marginTop: 20 }}>
+                            <InputLabel id="edit-material-label">Material Name</InputLabel>
+                            <Select
+                                labelId="edit-material-label"
+                                id="editMaterialName"
+                                value={currentEditItem?.materialName || ''}
+                                label="Material Name"
+                                onChange={e => setCurrentEditItem({ ...currentEditItem, materialName: e.target.value })}
+                            >
+                                {materials.map(material => (
+                                    <MenuItem key={material.id} value={material.materialName}>
+                                        {material.materialName}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
+                        <FormControl fullWidth style={{ marginTop: 20 }}>
+                            <InputLabel id="edit-unit-label">Unit</InputLabel>
+                            <Select
+                                labelId="edit-unit-label"
+                                id="editUnit"
+                                value={currentEditItem?.unit || ''}
+                                label="Unit"
+                                onChange={e => setCurrentEditItem({ ...currentEditItem, unit: e.target.value })}
+                            >
+                                <MenuItem value="Kg">Kg</MenuItem>
+                                <MenuItem value="g">g</MenuItem>
+                                <MenuItem value="Tone">Tone</MenuItem>
+                            </Select>
+                        </FormControl>
+
+                        <TextField
+                            id="editQuantity"
+                            label="Quantity"
+                            fullWidth
+                            type="number"
+                            value={currentEditItem?.quantity || ''}
+                            onChange={e => setCurrentEditItem({ ...currentEditItem, quantity: parseInt(e.target.value, 10) })}
+                            style={{ marginTop: 20 }}
+                        />
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleDialogClose} color="primary">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleDialogSave} color="primary">
+                            Save
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </Container>
         </div>
     );

@@ -26,8 +26,6 @@ export const acceptRequest = (companyId, requestId, dateTime) => {
   const url = `${API_URL}/${companyId}/accept`;
   console.log(`Calling acceptRequest with companyId: ${companyId} and requestId: ${requestId}`);
   console.log(`URL: ${url}`);
-
-  // Prepare the payload as an object. Adjust this if the server expects a different structure.
   const payload = [
     {
         "id": requestId,

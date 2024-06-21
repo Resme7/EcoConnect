@@ -2,6 +2,7 @@ package com.example.ecoconnect.service.implement;
 
 import com.example.ecoconnect.entities.User;
 import com.example.ecoconnect.repository.UserRepository;
+import com.example.ecoconnect.service.CryptPassword;
 import com.example.ecoconnect.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,10 @@ public class UserServiceImplement implements UserService {
 
     @Override
     public User saveUser(User user) {
-        //criptare
+        String pwd = user.getPassword();
+        final String secretKey = "secretKey";
+        String encryptPwd = CryptPassword.encrypt(pwd, secretKey);
+        user.setPassword(encryptPwd);
         return userRepository.save(user);
     }
 

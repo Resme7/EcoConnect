@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import logo from '../Assets/ecoConnect.png';
-import { AppBar, Card, CardContent, Box, Toolbar, Typography, Button, Container, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import Home from '@mui/icons-material/Home'
+import { AppBar, Card, CardContent, Box, Toolbar, Typography, IconButton, Button, Container, CssBaseline, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { useUser } from '../Pages/util/UserContext';
 import { fetchUserById, deleteUserById } from './Service/Service';
 
@@ -53,9 +54,9 @@ function UserProfile() {
                     <Typography variant="h6" sx={{ flexGrow: 1, color:'#134611',textAlign: 'center', marginLeft: 'auto' }}>
                         Profile
                     </Typography>
-                    <Button color="inherit" component={RouterLink} to="/person" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        Back to Home
-                    </Button>
+                    <IconButton onClick={() => navigate('/person')}>
+                            <Home />
+                        </IconButton>
                 </Toolbar>
             </AppBar>
             <div className='page-container1'>

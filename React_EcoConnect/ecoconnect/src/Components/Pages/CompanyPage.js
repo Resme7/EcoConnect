@@ -8,6 +8,7 @@ import {
 import { LocalizationProvider, DateTimePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import LogoutIcon from '@mui/icons-material/Logout';
 import EventIcon from '@mui/icons-material/Event';
 import logo from '../Assets/ecoConnect.png';
 import on_hold from '../Assets/hourglass_onhold.png';
@@ -16,10 +17,12 @@ import completed from '../Assets/approved.png';
 import '../Pages/style/General_page.css';
 import { fetchCompanyById } from '../Pages/Service/Service';
 import { getNearbyUsersForCompany } from '../Pages/Service/userService';
-import { getAllRequestsOnHold, getAllRequestsByUserId, acceptRequest, deleteRequest, getRequestsOrderByQuantity, finishRequest } from '../Pages/Service/requestService';
+import { getAllRequestsOnHold, getAllRequestsByUserId, acceptRequest, deleteRequest, finishRequest } from '../Pages/Service/requestService';
+import {fetchRequestsAccepted} from '../Pages/Service/Service'
 import { useUser } from '../Pages/util/UserContext';
 import companyPin from '../Assets/company-pin.png';
 import personPin from '../Assets/person-pin.png';
+import requestPin from '../Assets/requestpin.png';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { format } from 'date-fns';
 import './style/TableStyle.css';
@@ -39,39 +42,68 @@ function CompanyPage() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [activeRequest, setActiveRequest] = useState(null);
-  const [requestsOrderedByQuantity, setRequestsOrderedByQuantity] = useState([]);
+  const [requestsAccepted, setRequestsAccepted] = useState([]);
   const navigate = useNavigate();
   const [companyData, setCompanyData] = useState(null);
   const [requestDateTimes, setRequestDateTimes] = useState({});
 
   const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk', // Ensure you replace this with your actual API key
+    googleMapsApiKey: 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk', 
   });
+
+  const fetchCompanyDetails = async (companyId) => {
+    try {
+      const companyData = await fetchCompanyById(companyId);
+      console.log("company", companyData.data)
+      if (companyData && companyData.data.latitude && companyData.data.longitude) {
+        const newCenter = {
+          lat: parseFloat(companyData.data.latitude),
+          lng: parseFloat(companyData.data.longitude),
+        };
+        setCenter(newCenter);
+        setCompanyData(companyData.data);
+        console.log('Company location:', newCenter);
+      }
+    } catch (error) {
+      console.error('Error fetching company data:', error);
+    }
+  };
+
+  const fetchNearbyUsers = async (userId) => {
+    try {
+      const response = await getNearbyUsersForCompany(userId);
+      setNearbyLocations(response.data);
+    } catch (error) {
+      console.error('Error fetching nearby locations:', error);
+    }
+  };
+  const getRequestsAccepted = async (userId) => {
+    try {
+      const response = await fetchRequestsAccepted(userId);
+      console.log("request accepted", response.data)
+      setRequestsAccepted(response.data);
+    } catch (error) {
+      console.error('Error fetching nearby locations:', error);
+    }
+  };
 
   useEffect(() => {
     if (user && user.id) {
-      fetchCompanyById(user.id).then(companyData => {
-        if (companyData && companyData.data.latitude && companyData.data.longitude) {
-          const newCenter = {
-            lat: parseFloat(companyData.data.latitude),
-            lng: parseFloat(companyData.data.longitude)
-          };
-          setCenter(newCenter);
-          setCompanyData(companyData.data);
-        }
-      }).catch(error => {
-        console.error('Error fetching company data:', error);
-      });
+      console.log('user', user);
+      fetchCompanyDetails(user.companyId);
+      
     }
   }, [user]);
 
   useEffect(() => {
     if (user && user.id) {
-      getNearbyUsersForCompany(user.id).then(response => {
-        setNearbyLocations(response.data);
-      }).catch(error => {
-        console.error('Error fetching nearby locations:', error);
-      });
+      fetchNearbyUsers(user.id);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && user.id) {
+      getRequestsAccepted(user.id)
     }
   }, [user]);
 
@@ -88,7 +120,7 @@ function CompanyPage() {
     setSelectedCompanyDetails(null);
     setSelectedUserRequests([]);
     setRequestsOnHold([]);
-    setRequestsOrderedByQuantity([]);
+    setRequestsAccepted([]);
     if (location.role === 'Person') {
       setSelectedUser(location);
       getAllRequestsByUserId(location.id).then(response => {
@@ -100,11 +132,6 @@ function CompanyPage() {
         setRequestsOnHold(response.data);
       }).catch(error => {
         console.error('Error fetching requests on hold:', error);
-      });
-      getRequestsOrderByQuantity(location.id).then(response => {
-        setRequestsOrderedByQuantity(response.data);
-      }).catch(error => {
-        console.error('Error fetching requests ordered by quantity:', error);
       });
     } else if (location.role === 'Company') {
       setSelectedCompanyDetails(location);
@@ -145,10 +172,10 @@ function CompanyPage() {
 
   const handleFinishRequest = (requestId) => {
       finishRequest(requestId).then(() => {
-        const updatedRequestsOrderedByQuantity = requestsOrderedByQuantity.map(request => 
+        const updatedRequestsAccepted = requestsAccepted.map(request => 
           request.id === requestId ? { ...request} : request
         );
-        setRequestsOrderedByQuantity(updatedRequestsOrderedByQuantity);
+        setRequestsAccepted(updatedRequestsAccepted);
       }).catch(error => {
         console.error('Error finishing request:', error);
       });
@@ -188,22 +215,18 @@ function CompanyPage() {
             <IconButton color="inherit" onClick={handleUserProfile}>
               <AccountCircleIcon />
             </IconButton>
-            <Button
-              color="inherit"
-              onClick={handleLogout}
-              sx={{ backgroundColor: '#134611', color: 'white', marginLeft: 2 }}
-            >
-              Logout
-            </Button>
+            <IconButton color="inherit" onClick={handleLogout}>
+                        <LogoutIcon />
+                    </IconButton>
           </Toolbar>
         </AppBar>
         <div className="page-container">
           <Container maxWidth="md" style={{ marginTop: '20px' }}>
             <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={12}>
-              {center.lat !== 0 && center.lng !== 0 && (
+              {user && center.lat && center.lng &&  (
                 <Marker
-                  position={{ lat: center.lat, lng: center.lng }}
-                  icon={companyPin}
+                  position={{ lat: parseFloat(center.lat), lng: parseFloat(center.lng) }}
+                  icon={personPin}
                   title="Company Location"
                 />
               )}
@@ -211,7 +234,7 @@ function CompanyPage() {
                 <Marker
                   key={index}
                   position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
-                  icon={location.role === 'Company' ? companyPin : personPin}
+                  icon={location.role === 'Company' ? companyPin : requestPin}
                   title={location.role === 'Company' ? location.companyName : location.name}
                   onClick={() => handleMarkerClick(location)}
                 />
@@ -263,9 +286,9 @@ function CompanyPage() {
             </div>
           )}
           
-          {selectedUser && requestsOrderedByQuantity.length > 0 && (
+          {requestsAccepted.length > 0 && (
             <div style={{ marginTop: '20px' }}>
-              <Typography variant="h6" align="center">Requests ordered by quantity for {selectedUser.name}:</Typography>
+              <Typography variant="h6" align="center">Requests Accepted:</Typography>
               <TableContainer component={Paper} className="table-container">
                 <div className='table-wrapper'>
                 <Table className="table">
@@ -279,13 +302,12 @@ function CompanyPage() {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {requestsOrderedByQuantity.map(request => (
+                    {requestsAccepted.map(request => (
                       <TableRow key={request.id}>
                         <TableCell>{request.materialName}</TableCell>
                         <TableCell>{request.quantity}</TableCell>
                         <TableCell>{request.unit}</TableCell>
                         <TableCell>
-                          {request.status === 'ON_HOLD' && <img src={on_hold} alt="On Hold" style={{ height: 30 }} />}
                           {request.status === 'PROCESSING' && <img src={processing} alt="Processing" style={{ height: 30 }} />}
                           {request.status === 'COMPLETED' && <img src={completed} alt="Completed" style={{ height: 30 }} />}
                         </TableCell>
@@ -331,6 +353,10 @@ function CompanyPage() {
                     <TableRow>
                       <TableCell>Address</TableCell>
                       <TableCell>{selectedCompanyDetails.address}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Materials</TableCell>
+                      <TableCell>{selectedCompanyDetails.materialList + " "}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>

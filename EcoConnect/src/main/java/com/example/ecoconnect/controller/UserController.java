@@ -84,6 +84,19 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/company-id/{userId}")
+    public ResponseEntity<Map<String, Object>> getCompanyIdByUserId(@PathVariable Long userId) {
+        Company company = companyService.getByUserId(userId);
+        if (company == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("companyId", company.getCompanyId());
+        response.put("latitude", company.getLatitude());
+        response.put("longitude", company.getLongitude());
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -212,7 +225,7 @@ public class UserController {
         if (user == null) {
             return new ResponseEntity<>(MessageContent.LOGIN_ERROR, HttpStatus.BAD_REQUEST);
         }
-        if (user!=null) //validate(userLoginDTO, user.getEmail(), user.getPassword()))
+        if (validate(userLoginDTO, user.getEmail(), user.getPassword())) //validate(userLoginDTO, user.getEmail(), user.getPassword()))
         {
             ResponseEntity personDetailDTO = returnUserDetailsByRole(user);
             if (personDetailDTO != null)
@@ -224,9 +237,9 @@ public class UserController {
         DtoToEntity convertor = new DtoToEntity();
         if (user.getRole() == Role.Person) {
             Person person = personService.getByUserId(user.getUserId());
-            PersonDetailDTO citizenDetailsDto = convertor.convertorPersonDetailDtoToEntity(person, user);
+            PersonDetailDTO personDetailsDTO = convertor.convertorPersonDetailDtoToEntity(person, user);
 
-            return new ResponseEntity<>(citizenDetailsDto, HttpStatus.OK);
+            return new ResponseEntity<>(personDetailsDTO, HttpStatus.OK);
         } else if (user.getRole() == Role.Company) {
             Company company = companyService.getByUserId(user.getUserId());
             CompanyDetailDTO companyDetailsDto = convertor.convertorCompanyDetailDtoToEntity(company, user);

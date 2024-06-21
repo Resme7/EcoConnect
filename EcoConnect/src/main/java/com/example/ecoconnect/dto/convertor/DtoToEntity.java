@@ -181,6 +181,7 @@ public class DtoToEntity {
                 .quantity(request.getQuantity())
                 .personName(request.getPerson().getFirstName() + " " + request.getPerson().getLastName())
                 .unit(request.getUnit())
+                .status(request.getStatus())
                 .build();
     }
 

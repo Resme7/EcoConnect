@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import {  useNavigate } from 'react-router-dom';
+import Home from '@mui/icons-material/Home'
 import logo from '../Assets/ecoConnect.png';
-import { AppBar, Card, CardContent, Box, Toolbar, Typography, Button, Container, CssBaseline } from '@mui/material';
+import { AppBar, Card, CardContent, Box, Toolbar, Typography, IconButton, Container, CssBaseline } from '@mui/material';
 import { useUser } from '../Pages/util/UserContext';
 import { fetchUserById,  } from './Service/Service';
 
 function UserProfileCompany() {
     const { user, setUser } = useUser();
     const [userData, setUserData] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (user && user.id) {
@@ -31,9 +33,9 @@ function UserProfileCompany() {
                     <Typography variant="h6" sx={{ flexGrow: 1, color:'#134611',textAlign: 'center', marginLeft: 'auto' }}>
                         Profile
                     </Typography>
-                    <Button color="inherit" component={RouterLink} to="/company" style={{ textDecoration: 'none', color: 'inherit' }}>
-                        Back to Home
-                    </Button>
+                    <IconButton onClick={() => navigate('/company')}>
+                            <Home />
+                        </IconButton>
                 </Toolbar>
             </AppBar>
             <div className='page-container1'>

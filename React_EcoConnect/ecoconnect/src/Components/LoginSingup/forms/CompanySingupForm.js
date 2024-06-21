@@ -165,7 +165,7 @@ function CompanySignupForm() {
     try {
       await companySchema.validate(formData, { abortEarly: false });
       
-      console.log('Form Data:', formData); // Log form data for debugging
+      console.log('Form Data:', formData); 
 
       const response = await fetch('http://localhost:8082/api/companies', {
         method: 'POST',
@@ -177,11 +177,11 @@ function CompanySignupForm() {
 
       const responseData = await response.json();
       if (!response.ok) {
-        console.error('Backend response error:', responseData); // Log backend response for debugging
+        console.error('Backend response error:', responseData); 
         throw new Error(`Failed to sign up: ${responseData.message}`);
       }
 
-      console.log('Backend response:', responseData); // Log successful response for debugging
+      console.log('Backend response:', responseData); 
       setSuccess(true);
       setTimeout(() => {
         setRedirect(true);

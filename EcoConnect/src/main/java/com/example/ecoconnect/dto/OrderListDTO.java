@@ -1,5 +1,6 @@
 package com.example.ecoconnect.dto;
 
+import com.example.ecoconnect.entities.Status;
 import lombok.*;
 
 import java.util.Date;
@@ -19,4 +20,5 @@ public class OrderListDTO {
     private String phoneNumber;
     private String personName;
     private String unit;
+    private Status status;
 }

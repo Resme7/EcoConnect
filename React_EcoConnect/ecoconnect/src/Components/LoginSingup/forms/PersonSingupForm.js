@@ -105,7 +105,7 @@ function PersonSignupForm() {
     e.preventDefault();
     try {
       await personSchema.validate(formData, { abortEarly: false });
-      console.log('Form Data:', formData); // Log form data for debugging
+      console.log('Form Data:', formData); 
       const response = await fetch('http://localhost:8082/api/people', {
         method: 'POST',
         headers: {

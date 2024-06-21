@@ -3,7 +3,6 @@ package com.example.ecoconnect.controller;
 import com.example.ecoconnect.dto.CollectionStationDTO;
 import com.example.ecoconnect.dto.CompanyDTO;
 import com.example.ecoconnect.dto.OrderListDTO;
-import com.example.ecoconnect.dto.PersonDTO;
 import com.example.ecoconnect.dto.convertor.DtoToEntity;
 import com.example.ecoconnect.entities.*;
 import com.example.ecoconnect.service.CompanyService;
@@ -84,6 +83,15 @@ public class CompanyController {
                         return new ResponseEntity<>(company, HttpStatus.OK);
                 }
         }
+        @GetMapping("/material/{materialName}")
+        public ResponseEntity<List<Long>> getCompaniesByMaterialName(@PathVariable String materialName) {
+                 List<Long> companies = companyService.getCompanyByMaterialName(materialName);
+                if (companies.isEmpty()) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                } else {
+                        return ResponseEntity.ok(companies);
+                }
+        }
 
         @GetMapping(value = "/{id}/accepted-request")
         public ResponseEntity getAllRequestAccepted(@PathVariable Long id) {
@@ -120,6 +128,7 @@ public class CompanyController {
                 user.setPassword(companyDTO.getPassword());
                 user.setRole(Role.Company);
         }
+
 
         private void processMaterialList(CompanyDTO companyDTO, List<Material> materials){
                 for(String name : companyDTO.getMaterialName()){

@@ -39,4 +39,9 @@ public class CompanyServiceImplement implements CompanyService {
     public Company saveCompany(Company company){
         return companyRepository.save(company);
     }
+
+    @Override
+    public List<Long> getCompanyByMaterialName(String materialName) {
+        return companyRepository.findByMaterialName(materialName);
+    }
 }

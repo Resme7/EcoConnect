@@ -4,6 +4,7 @@ import { useUser } from '../Pages/util/UserContext';
 import './style/Login.css';
 import email_icon from '../Assets/email.png';
 import password_icon from '../Assets/password.png';
+import { fetchRequestByCompanyId } from '../Pages/Service/Service';
 
 function Login() {
     const [error, setError] = useState('');
@@ -28,15 +29,30 @@ function Login() {
             return response.json();
         })
         .then(data => {
-            console.log('Login response:', data);  // Verifică structura obiectului primit
+            console.log('Login response:', data);  
             const userId = data.id;
 
-            // Set user state based on role
             if (data.role === 'Company') {
-                setUser({ id: userId, role: data.role });
+                fetch(`http://localhost:8082/api/users/company-id/${userId}`)
+
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch company ID.');
+                        }
+                        return response.json();
+                    })
+                    .then(companyData => {
+                        console.log('Company ID response:', companyData);
+                        setUser({
+                            id: userId,
+                            role: data.role,
+                            companyId: companyData.companyId,
+                            latitude: parseFloat(companyData.latitude),
+                            longitude: parseFloat(companyData.longitude)
+                        });
+                    })
                 navigate('/company');
             } else if (data.role === 'Person') {
-                // Fetch personId using userId for persons
                 fetch(`http://localhost:8082/api/users/person-id/${userId}`)
                     .then(response => {
                         if (!response.ok) {

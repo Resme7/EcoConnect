@@ -18,4 +18,6 @@ public interface CompanyService {
     Company getCompanyByNumberPhone(String companyNumberPhone);
 
     Company saveCompany(Company company);
+
+    List<Long> getCompanyByMaterialName(String materialName);
 }

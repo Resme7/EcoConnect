@@ -17,6 +17,6 @@ public interface CompanyRepository extends JpaRepository<Company, Long> {
 
     Company findByUserUserId(Long userId);
 
-    @Query("from Company c join c.materialList ml where ml.materialName = :materialName")
-    List<Company> findByMaterial(String materialName);
+    @Query("select distinct c.id from Company c join c.materialList ml where ml.materialName = :materialName")
+    List<Long> findByMaterialName(String materialName);
 }

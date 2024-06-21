@@ -3,7 +3,22 @@ import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8082/api';
 
+const fetchRequestByCompanyId = (userId) => {
+    return axios.get(`${API_BASE_URL}/users/company-id/${userId}`);
+};
 
+const fetchAllMaterials = () => {
+    return axios.get(`${API_BASE_URL}/materials`);
+};
+
+
+const fetchCompaniesByMaterial = (material) => {
+    return axios.get(`${API_BASE_URL}/companies/material/${material}`);
+};
+
+const fetchRequestsAccepted = (userId) => {
+    return axios.get(`${API_BASE_URL}/companies/${userId}/accepted-request`);
+};
 
 const fetchRequestByPersonId = (userId) => {
     return axios.get(`http://localhost:8082/api/users/person-id/${userId}`);
@@ -53,7 +68,7 @@ const deleteUserById = (userId) => {
 
 
 
-export {fetchCompanyById, deleteUserById, fetchUserById, fetchMaterialById, fetchRequestById, fetchRequestByPersonId, fetchRequestHistoryByPersonId,
+export {fetchRequestsAccepted, fetchCompaniesByMaterial, fetchAllMaterials, fetchRequestByCompanyId, fetchCompanyById, deleteUserById, fetchUserById, fetchMaterialById, fetchRequestById, fetchRequestByPersonId, fetchRequestHistoryByPersonId,
      createRequest,deleteRequestById, updateRequestOnHold, fetchNearbyCompaniesRadius };
 
 

@@ -11,9 +11,7 @@ const Map = ({ latitude, longitude, onMarkerDragEnd, onRightClick, pinType }) =>
     async function initMap() {
       const position = { lat: parseFloat(latitude), lng: parseFloat(longitude) };
   
-      // Verificăm dacă scriptul este deja încărcat
       if (!window.google || !window.google.maps) {
-        // Adăugăm scriptul doar dacă nu există deja
         await new Promise((resolve, reject) => {
           const script = document.createElement('script');
           script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk&callback=initMap`;
