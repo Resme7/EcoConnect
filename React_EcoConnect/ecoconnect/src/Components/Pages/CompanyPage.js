@@ -48,6 +48,7 @@ function CompanyPage() {
   const navigate = useNavigate();
   const [companyData, setCompanyData] = useState(null);
   const [requestDateTimes, setRequestDateTimes] = useState({});
+  const [filterReq, setFilterReq] = useState([]);
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: 'AIzaSyAz8QnnKvBaN7Z2sAX1hH7_Djg8zqJNkQk',
@@ -63,31 +64,13 @@ function CompanyPage() {
         };
         setCenter(newCenter);
         setCompanyData(companyData.data);
-        await getMaterialsByCompany(companyId); // Fetch the materials
+        await getMaterialsByCompany(companyId);
       }
     } catch (error) {
       console.error('Error fetching company data:', error);
     }
   };
-
-  const fetchNearbyUsers = async (userId) => {
-    try {
-      const response = await getNearbyUsersForCompany(userId);
-      setNearbyLocations(response.data);
-    } catch (error) {
-      console.error('Error fetching nearby locations:', error);
-    }
-  };
-
-  const getRequestsAccepted = async (userId) => {
-    try {
-      const response = await fetchRequestsAccepted(userId);
-      setRequestsAccepted(response.data);
-    } catch (error) {
-      console.error('Error fetching accepted requests:', error);
-    }
-  };
-
+  
   const getMaterialsByCompany = async (companyId) => {
     try {
       const response = await fetchMaterialsByCompany(companyId);
@@ -96,31 +79,92 @@ function CompanyPage() {
       await Promise.all(materialIds.map(async (materialId) => {
         const materialResponse = await fetchMaterialById(materialId);
         materialNamesMap[materialId] = materialResponse.data.materialName;
-        console.log("MaterialNamesMap", materialNamesMap);
       }));
       setSpecializedMaterials(Object.values(materialNamesMap));
       setMaterialNames(materialNamesMap);
+      console.log(specializedMaterials)
     } catch (error) {
       console.error('Error fetching company materials:', error);
     }
   };
+  useEffect(() => {
+    console.log('Specialized Materials Updated:', specializedMaterials);
+  }, [specializedMaterials]);
+
+  const fetchNearbyUsers = async (userId) => {
+    try {
+      const response = await getNearbyUsersForCompany(userId);
+      const locations = response.data;
+      console.log(locations)
+      setNearbyLocations(locations);
+      let allFilteredRequests = [];
+      for (const location of locations) {
+        console.log("Locatie", location)
+        if (location.role === "Person") {
+          try {
+            const res = await getAllRequestsOnHold(location.id);
+            console.log("reqhold", res.data)
+            const requestsOnHold = res.data;
+            console.log("req22", requestsOnHold)
+            console.log("specialite", specializedMaterials)
+            const filteredRequests = requestsOnHold.filter(request =>
+              specializedMaterials.includes(request.materialName)
+            );
+            console.log("filtru", filteredRequests)
+
+            allFilteredRequests = [...allFilteredRequests, ...filteredRequests];
+            console.log("Final", allFilteredRequests)
+          } catch (error) {
+            console.error('Error fetching requests on hold:', error);
+          }
+        }
+      }
+      setFilterReq(allFilteredRequests);
+      console.log("Filtered Requests:", allFilteredRequests);
+    } catch (error) {
+      console.error('Error fetching nearby locations:', error);
+    }
+  };
+  
+  
+
+  const getRequestsAccepted = async (userId) => {
+    try {
+      const response = await fetchRequestsAccepted(userId);
+      console.log('Full response from fetchRequestsAccepted:', response.data); 
+      setRequestsAccepted(response.data); 
+    } catch (error) {
+      console.error('Error fetching accepted requests:', error);
+    }
+  };
+
+  
+  
 
   useEffect(() => {
     if (user && user.id) {
       fetchCompanyDetails(user.companyId);
+      getMaterialsByCompany(user.companyId)
     }
   }, [user]);
 
   useEffect(() => {
-    if (user && user.id) {
-      fetchNearbyUsers(user.id);
+    if(user && user.id){
+      fetchNearbyUsers(user.id)
     }
-  }, [user]);
+    console.log('Specialized Materials Updated:', specializedMaterials);
+  }, [specializedMaterials], user);
 
   useEffect(() => {
     if (user && user.id) {
-      getRequestsAccepted(user.id);
-      
+      getRequestsAccepted(user.id)
+        .then(response => {
+          setRequestsAccepted(response.data);
+          console.log('User requests accepted:', response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching user requests:', error);
+        });
     }
   }, [user]);
 
@@ -137,7 +181,7 @@ function CompanyPage() {
     setSelectedCompanyDetails(null);
     setSelectedUserRequests([]);
     setRequestsOnHold([]);
-    
+
     if (location.role === 'Person') {
       setSelectedUser(location);
       getAllRequestsByUserId(location.id).then(response => {
@@ -150,15 +194,11 @@ function CompanyPage() {
       }).catch(error => {
         console.error('Error fetching requests on hold:', error);
       });
-      console.log("LocationPerson", location)
+      console.log("PPP", location)
     } else if (location.role === 'Company') {
       setSelectedCompanyDetails(location);
-      console.log("LocationCompany", location)
-      
     }
-    
   };
-
 
   const handleAcceptRequest = (requestId) => {
     if (companyData) {
@@ -194,7 +234,7 @@ function CompanyPage() {
 
   const handleFinishRequest = (requestId) => {
     finishRequest(requestId).then(() => {
-      const updatedRequestsAccepted = requestsAccepted.map(request => 
+      const updatedRequestsAccepted = requestsAccepted.map(request =>
         request.id === requestId ? { ...request } : request
       );
       setRequestsAccepted(updatedRequestsAccepted);
@@ -224,11 +264,29 @@ function CompanyPage() {
   requestsOnHold.forEach(request => {
     if (specializedMaterials.includes(request.materialName)) {
       filteredRequestsOnHold.push(request);
+      console.log("materials", filteredRequestsOnHold)
     }
-    console.log(filteredRequestsOnHold)
   });
 
+  const hasRequiredMaterial = (location) => {
+    return location.requestsMaterialsPerson && location.requestsMaterialsPerson.some(material =>
+      filterReq.some(request => request.materialName === material)
+    );
+  };
   
+  
+  const filteredLocations = nearbyLocations.filter(location => {
+    if (location.role === 'Company') {
+      return true; 
+    } else if (location.role === 'Person') {
+      return hasRequiredMaterial(location); 
+    }
+    return false;
+  });
+console.log("Filtered Locations: ", filteredLocations);
+console.log("Nearby Locations: ", nearbyLocations);
+  
+
 
   if (!isLoaded) {
     return <div>Loading...</div>;
@@ -253,43 +311,45 @@ function CompanyPage() {
         </AppBar>
         <div className="page-container">
           <Container maxWidth="md" style={{ marginTop: '20px' }}>
-            <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={12}>
-              {user && center.lat && center.lng && (
-                <Marker
-                  position={{ lat: parseFloat(center.lat), lng: parseFloat(center.lng) }}
-                  icon={personPin}
-                  title="Company Location"
-                />
-              )}
-             {nearbyLocations.map((location, index) => {
-        
-        if (location.role === 'Company') {
-          return (
-            <Marker
-              key={index}
-              position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
-              icon={companyPin}
-              title={location.companyName}
-              onClick={() => handleMarkerClick(location)}
-            />
-          );
-        } else {
-          const hasRequiredMaterial = location.requestsMaterialsPerson && filteredRequestsOnHold.some(request => location.requestsMaterialsPerson.includes(request.materialName));
-          return hasRequiredMaterial ? (
-            <Marker
-              key={index}
-              position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
-              icon={requestPin}
-              title={location.name}
-              onClick={() => handleMarkerClick(location)}
-            />
-          ) : null;
-        }
-      })}
-            </GoogleMap>
+          <GoogleMap mapContainerStyle={mapContainerStyle} center={center} zoom={12}>
+  {user && center.lat && center.lng && (
+    <Marker
+      position={{ lat: parseFloat(center.lat), lng: parseFloat(center.lng) }}
+      icon={personPin}
+      title="Company Location"
+    />
+  )}
+   {filteredLocations.map((location, index) => {
+  if (location.role === 'Company') {
+    return (
+      <Marker
+        key={index}
+        position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
+        icon={companyPin}
+        title={location.companyName}
+        onClick={() => handleMarkerClick(location)}
+      />
+    );
+  } else if (hasRequiredMaterial(location)) {
+    return (
+      <Marker
+        key={index}
+        position={{ lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }}
+        icon={requestPin}
+        title={location.name}
+        onClick={() => handleMarkerClick(location)}
+      />
+    );
+  }
+  return null;
+})}
+
+
+</GoogleMap>
+
           </Container>
 
-          {requestsAccepted && requestsAccepted.length > 0 && (
+          { requestsAccepted && requestsAccepted.length > 0 && (
             <div style={{ marginTop: '20px' }}>
               <Typography variant="h6" align="center">Requests Accepted:</Typography>
               <TableContainer component={Paper} className="table-container">
@@ -311,8 +371,8 @@ function CompanyPage() {
                           <TableCell>{request.quantity}</TableCell>
                           <TableCell>{request.unit}</TableCell>
                           <TableCell>
-                            {request.status === 'PROCESSING' && <img src={processing} title="Processing" alt= "Processing" style={{ height: 30 }} />}
-                            {request.status === 'COMPLETED' && <img src={completed} title="Completed" alt= "Completed" style={{ height: 30 }} />}
+                            {request.status === 'PROCESSING' && <img src={processing} title="Processing" alt="Processing" style={{ height: 30 }} />}
+                            {request.status === 'COMPLETED' && <img src={completed} title="Completed" alt="Completed" style={{ height: 30 }} />}
                           </TableCell>
                           <TableCell>
                             {request.status === 'PROCESSING' && (
@@ -349,9 +409,9 @@ function CompanyPage() {
                           <TableCell>{request.materialName}</TableCell>
                           <TableCell>{format(new Date(request.dateRequestCreated), 'dd/MM/yyyy HH:mm')}</TableCell>
                           <TableCell>
-                            {request.status === 'ON_HOLD' && <img src={on_hold} title="On Hold" alt = "On Hold" style={{ height: 30 }} />}
+                            {request.status === 'ON_HOLD' && <img src={on_hold} title="On Hold" alt="On Hold" style={{ height: 30 }} />}
                             {request.status === 'PROCESSING' && <img src={processing} title="Processing" alt="Processing" style={{ height: 30 }} />}
-                            {request.status === 'COMPLETED' && <img src={completed} title="Completed" alt="Completed"  style={{ height: 30 }} />}
+                            {request.status === 'COMPLETED' && <img src={completed} title="Completed" alt="Completed" style={{ height: 30 }} />}
                           </TableCell>
                           <TableCell>
                             {requestDateTimes[request.id] ? format(requestDateTimes[request.id], 'dd/MM/yyyy HH:mm') : 'N/A'}

@@ -29,14 +29,8 @@ public class CompanyDTO {
     @Size(min = 8, max = 50, message = "Password provided does not adhere to the specified field validation rules")
     private  String password;
 
-    @NotNull(message = "Required")
-    @Size(max = 30, message = "Street provided does not adhere to the specified field validation rules")
-    @Pattern(message = "Street provided does not adhere to the specified field validation rules",  regexp = "^[a-zA-ZăîâĂÎÂ ]*$")
     private String street;
 
-    @NotNull(message = "Required")
-    @Size(max = 10, message = "Number provided does not adhere to the specified field validation rules")
-    @Pattern(message = "Number provided does not adhere to the specified field validation rules", regexp = "^[0-9-]*$")
     private String number;
 
     @NotNull(message = "Required")

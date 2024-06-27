@@ -18,9 +18,6 @@ export const finishRequest = ( requestId) => {
   return axios.patch(`${API_URL}/${requestId}/finish`,payload);
 };
 
-export const getRequestsOrderByQuantity = async (personId) => {
-  return await axios.get(`${API_URL}/person/${personId}/requests-ordered-by-quantity`)
-}
 
 export const acceptRequest = (companyId, requestId, dateTime) => {
   const url = `${API_URL}/${companyId}/accept`;

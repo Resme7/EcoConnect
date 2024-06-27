@@ -61,7 +61,7 @@ function PersonPage() {
                 })
                 .catch(error => console.error('Failed to fetch nearby companies:', error));
 
-            fetchRequestHistoryByPersonId(user.personId)
+            fetchRequestHistoryByPersonId(user.id)
                 .then(response => {
                     if (response.status === 200) {
                         const rawData = response.data;
@@ -248,7 +248,7 @@ function PersonPage() {
                                     <p><strong>Materials:</strong> {selectedCompany.materialList ? selectedCompany.materialList.join(', ') : 'N/A'}</p>
                                     <p><strong>Email:</strong> {selectedCompany.email || 'N/A'}</p>
                                     <p><strong>Phone:</strong> {selectedCompany.companyNumberPhone || 'N/A'}</p>
-                                    <p><strong>Adress:</strong> {selectedCompany.address || 'N/A'}</p>
+                                    <p><strong>Address:</strong> {selectedCompany.address || 'N/A'}</p>
                                 </div>
                             </InfoWindow>
                         )}
@@ -286,9 +286,9 @@ function PersonPage() {
                                                     <TableCell>{record.quantity || 'N/A'}</TableCell>
                                                     <TableCell>{record.unit || 'N/A'}</TableCell>
                                                     <TableCell>
-                                                        {record.status === 'ON_HOLD' && <img src={on_hold} title="On Hold" style={{ height: 30 }} />}
-                                                        {record.status === 'PROCESSING' && <img src={processing} title="Processing" style={{ height: 30 }} />}
-                                                        {record.status === 'COMPLETED' && <img src={completed} title="Completed" style={{ height: 30 }} />}
+                                                        {record.status === 'ON_HOLD' && <img src={on_hold} title="On Hold" alt= "OnHold" style={{ height: 30 }} />}
+                                                        {record.status === 'PROCESSING' && <img src={processing} title="Processing" alt= "Processing" style={{ height: 30 }} />}
+                                                        {record.status === 'COMPLETED' && <img src={completed} title="Completed" alt= "Completed" style={{ height: 30 }} />}
                                                     </TableCell>
                                                     <TableCell>{record.dateRequestCreated ? new Date(record.dateRequestCreated).toLocaleDateString() : 'N/A'}</TableCell>
                                                     <TableCell>

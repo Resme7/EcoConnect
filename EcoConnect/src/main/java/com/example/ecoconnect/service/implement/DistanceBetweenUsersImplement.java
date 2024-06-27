@@ -14,7 +14,7 @@ import java.util.List;
 
 @Service
 public class DistanceBetweenUsersImplement implements DistanceBetweenUsers {
-    private final static Double RADIUS = 10d;
+    private final static Double RADIUS = 3d;
     @Autowired
     private PersonRepository personRepository;
 
@@ -47,7 +47,7 @@ public class DistanceBetweenUsersImplement implements DistanceBetweenUsers {
                     Double latitudePerson = Double.parseDouble(personLatitude);
                     Double longitudePerson = Double.parseDouble(personLongitude);
 
-                    if (CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudePerson, longitudePerson) < RADIUS &&
+                    if (CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudePerson, longitudePerson) <= RADIUS &&
                             CalculateDistanceBetweenTwoPoints(latitude, longitude, latitudePerson, longitudePerson) != 0) {
                         nearbyPerson.add(person);
                     }

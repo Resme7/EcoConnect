@@ -7,10 +7,10 @@ import * as yup from 'yup';
 const personSchema = yup.object().shape({
   firstName: yup.string().matches(/[A-Z][a-z]*$/, 'Invalid name, [A-Z][a-z]').required('First name is required'),
   lastName: yup.string().matches(/[/A-Z][a-z]*$/,'Invalid name, [A-Z][a-z]').required('Last name is required'),
-  email: yup.string().email('Invalid email address').required('Email is required'),
+  email: yup.string().email(/([a-zA-Z0-9]+)[@]([a-z]+)[.]([a-z]+)*$/,'Invalid email address').required('Email is required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
-  street: yup.string().matches(/[a-zA-Z ]*$/).required('Street is required'),
-  number: yup.string().matches(/^[0-9-]*$/, 'Invalid number').required('Number is required'),
+  street: yup.string().required('Street is required'),
+  number: yup.string().required('Number is required'),
   building: yup.string().required('Building is required'),
   entrance: yup.string().required('Entrance is required'),
   apartNumber: yup.string().matches(/^[0-9-]*$/, 'Invalid number').required('Apartment number is required'),
