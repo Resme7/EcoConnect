@@ -61,8 +61,6 @@ public class PersonController  {
 
         validations.put("user_id", userFromDatabase.getUserId().toString());
         return new ResponseEntity<>(validations, HttpStatus.OK);
-
-
     }
 
     @GetMapping(value = "/{id}")

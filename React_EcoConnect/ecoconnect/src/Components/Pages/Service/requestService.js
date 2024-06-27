@@ -19,9 +19,9 @@ export const finishRequest = ( requestId) => {
 };
 
 
-export const acceptRequest = (companyId, requestId, dateTime) => {
-  const url = `${API_URL}/${companyId}/accept`;
-  console.log(`Calling acceptRequest with companyId: ${companyId} and requestId: ${requestId}`);
+export const acceptRequest = (userId, requestId, dateTime) => {
+  const url = `${API_URL}/${userId}/accept`;
+  console.log(`Calling acceptRequest with companyId: ${userId} and requestId: ${requestId}`);
   console.log(`URL: ${url}`);
   const payload = [
     {

@@ -15,10 +15,6 @@ public class CompanyServiceImplement implements CompanyService {
     private CompanyRepository companyRepository;
 
     @Override
-    public List<Company> getAllCompanies(){
-        return companyRepository.findAll();
-    }
-    @Override
     public Company getByUserId(Long userId) {
         return companyRepository.findByUserUserId(userId);
     }

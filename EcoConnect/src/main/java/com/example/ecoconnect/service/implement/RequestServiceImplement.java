@@ -29,11 +29,6 @@ public class RequestServiceImplement implements RequestService {
     public void deleteRequest(Long id) {
         requestRepository.deleteById(id);
     }
-    @Override
-    public List<Request> getAllByPersonIdMaterial(Long personId) {
-        return requestRepository.findAllByPersonPersonIdWithMaterial(personId);
-    }
-
 
     @Override
     public List<Request> getAllByPersonId(Long id) {
@@ -55,8 +50,5 @@ public class RequestServiceImplement implements RequestService {
         return requestRepository.findAllByPersonUserUserIdAndStatus(id, status);
     }
 
-    @Override
-    public List<Request> getAllByUserIdOrderByQuantity(Long id) {
-        return requestRepository.findAllByPersonUserUserIdOrderByQuantity(id);
-    }
+
 }

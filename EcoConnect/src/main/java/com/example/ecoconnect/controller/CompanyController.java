@@ -16,7 +16,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
+
 
 @RestController
 @CrossOrigin
@@ -138,17 +138,7 @@ public class CompanyController {
         }
 
 
-        @GetMapping
-        public ResponseEntity getAllCompanies() {
-                List<CollectionStationDTO> collectionStationDTOList = new ArrayList<>();
-                DtoToEntity convertor = new DtoToEntity();
-                for (Company company : companyService.getAllCompanies()) {
-                        CollectionStationDTO collectionStationDTO = convertor.convertorCompanyEntityToCollectionStationDto(company);
-                        collectionStationDTOList.add(collectionStationDTO);
-                }
 
-                return new ResponseEntity(collectionStationDTOList, HttpStatus.OK);
-        }
         private void setUserDetails(CompanyDTO companyDTO, User user) {
                 user.setEmail(companyDTO.getEmail());
                 user.setPassword(companyDTO.getPassword());

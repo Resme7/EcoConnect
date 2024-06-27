@@ -121,20 +121,6 @@ public class RequestController {
                 return verifyRequestsOnHold(id, requestListDTOS, convertor);
         }
 
-        @GetMapping(value = "/person/{id}/requests-ordered-by-quantity")
-        public ResponseEntity getAllByUserIdOrderByQuantity(@PathVariable Long id) {
-                List<RequestListDTO> requestListDTOS = new ArrayList<>();
-                DtoToEntity convertor = new DtoToEntity();
-                Person person = personService.getByUserId(id);
-                if (person == null) {
-                        Map<String, String> personNullMessage = new HashMap<>();
-                        personNullMessage.put("message", MessageContent.USER_NOT_FOUND);
-                        return new ResponseEntity<>(personNullMessage, HttpStatus.NOT_FOUND);
-                }
-
-                return verifyAndGetRequestsOrderedByQuantity(id, requestListDTOS, convertor);
-        }
-
         @PatchMapping(value = "/{id}/accept")
         public ResponseEntity updateRequestsOnHold(@PathVariable Long id, @RequestBody @Valid List<RequestOnHoldDTO> requestOnHoldDTOList) {
                 Company company = companyService.getByUserId(id);
@@ -167,19 +153,6 @@ public class RequestController {
 
                 return updateRequestAcceptedMethod(requestAcceptedDto);
         }
-        private ResponseEntity verifyAndGetRequestsOrderedByQuantity(Long id, List<RequestListDTO> requestListDTOS, DtoToEntity convertor) {
-                List<Request> requestList = requestService.getAllByUserIdOrderByQuantity(id);
-                if (requestList == null || requestList.size() == 0) {
-                        return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
-                } else {
-                        for (Request request : requestList) {
-                                RequestListDTO requestsListDto = convertor.convertorRequestListEntityToRequestListDTO(request);
-                                requestListDTOS.add(requestsListDto);
-                        }
-                }
-                return new ResponseEntity<>(requestListDTOS, HttpStatus.OK);
-        }
-
 
 
         private boolean saveRequest(List<RequestDTO> requestDTOList, Long id, DtoToEntity convertor) {

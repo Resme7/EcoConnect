@@ -105,22 +105,6 @@ public class DtoToEntity {
                 .build();
     }
 
-    public CollectionStationDTO convertorCompanyEntityToCollectionStationDto(Company company) {
-        return CollectionStationDTO.builder()
-                .name(company.getName())
-                .latitude(company.getLatitude())
-                .longitude(company.getLongitude())
-                .build();
-    }
-
-    public User convertorUserDtoToUserEntity(UserDTO userDto) {
-        return User.builder()
-                .email(userDto.getEmail())
-                .password(userDto.getPassword())
-                .role(userDto.getRole())
-                .build();
-    }
-
     public Material convertorMaterialDtoToMaterialEntity(MaterialDTO materialDto) {
         return Material.builder()
                 .materialName(materialDto.getMaterialName())

@@ -9,7 +9,6 @@ import jakarta.validation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -44,22 +43,7 @@ public class UserController {
         ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
-    @PostMapping
-    public ResponseEntity saveUser(@RequestBody @Valid UserDTO userDto, BindingResult bindingResult) {
-        DtoToEntity convertor = new DtoToEntity();
-        User user = convertor.convertorUserDtoToUserEntity(userDto);
 
-        Map<String, String> validations = checkValidations(userDto);
-
-        if (!validations.isEmpty()) {
-            return new ResponseEntity<>(validations, HttpStatus.BAD_REQUEST);
-        }
-
-        userService.saveUser(user);
-
-        validations.put("Results", "The user will be created with succes.");
-        return new ResponseEntity<>(validations, HttpStatus.OK);
-    }
     @PostMapping(value = "/login")
     public ResponseEntity login(@RequestBody(required = false) UserLoginDTO userLoginDTO) {
 
@@ -97,15 +81,7 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        List<UserDetailMapDTO> userDetailMapDTOS = new ArrayList<>();
 
-        setUserMapDetails(users, userDetailMapDTOS);
-
-        return new ResponseEntity<>(userDetailMapDTOS, HttpStatus.OK);
-    }
     @GetMapping(value = "/{id}")
     public ResponseEntity getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
@@ -136,21 +112,7 @@ public class UserController {
     }
 
 
-    @GetMapping(value = "/nearby-users-for-person/{id}")
-    public ResponseEntity getNearbyUsersForPerson(@PathVariable Long id) {
-        Person person = personService.getByUserId(id);
-        if (checkPersonExist(person)) return new ResponseEntity<>("User not found.", HttpStatus.NOT_FOUND);
-        Double personLatitude = Double.parseDouble(person.getLatitude());
-        Double personLongitude = Double.parseDouble(person.getLongitude());
-        List<PersonNearbyDTO> personNearbyDTOS = setNearbyPerson(personLatitude, personLongitude);
-        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOS = setNearbyCompanies(personLatitude, personLongitude);
 
-        List<Object> combinedList = new ArrayList<>();
-        combinedList.addAll(companyDetailPracticeDTOS);
-        combinedList.addAll(personNearbyDTOS);
-
-        return new ResponseEntity<>(combinedList, HttpStatus.OK);
-    }
 
     @GetMapping(value = "/nearby-users-for-company/{id}")
     public ResponseEntity getNearbyUsersForCompany(@PathVariable Long id) {
@@ -168,31 +130,7 @@ public class UserController {
         return new ResponseEntity<>(combinedList, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/nearby-users-after-moving")
-    public ResponseEntity getNearbyUsersForAfterMapMoving(@RequestParam Double latitude, @RequestParam Double longitude, @RequestParam Long id) {
-        Map<String, String> message = new HashMap<>();
-        message.put("error", "Invalid latitude and longitude.");
-        if (checkLatitudeAndLongitude(latitude, longitude))
-            return new ResponseEntity<>(message, HttpStatus.OK);
-        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOList = setNearbyCompanies(latitude, longitude);
-        List<PersonNearbyDTO> personNearbyDTOS = setNearbyPerson(latitude, longitude);
 
-        removeUserWithLocationLoggedIn(id, companyDetailPracticeDTOList, personNearbyDTOS);
-
-        List<Object> combinedList = new ArrayList<>();
-        combinedList.addAll(companyDetailPracticeDTOList);
-        combinedList.addAll(personNearbyDTOS);
-
-        return new ResponseEntity<>(combinedList, HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/companies/practice-info")
-    public ResponseEntity getAllCompaniesWithPracticeInfo() {
-        List<CompanyDetailPracticeDTO> companyDetailPracticeDTOList = new ArrayList<>();
-        DtoToEntity convertor = new DtoToEntity();
-        setCompaniesPracticeInfos(companyDetailPracticeDTOList, convertor);
-        return new ResponseEntity(companyDetailPracticeDTOList, HttpStatus.OK);
-    }
 
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<?> deleteUserById(@PathVariable Long id) {
@@ -203,29 +141,13 @@ public class UserController {
         userService.deleteUserById(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    private void setUserMapDetails(List<User> users, List<UserDetailMapDTO> userDetailMapDTOS) {
-        for (User user : users) {
-            UserDetailMapDTO userDetailMapDTO = new UserDetailMapDTO();
-            userDetailMapDTO.setUserId(user.getUserId());
-            userDetailMapDTO.setRole(user.getRole());
-            if (user.getRole() == Role.Person) {
-                Person person = personService.getByUserId(user.getUserId());
-                userDetailMapDTO.setLatitude(person.getLatitude());
-                userDetailMapDTO.setLongitude(person.getLongitude());
-            } else if (user.getRole() == Role.Company) {
-                Company company = companyService.getByUserId(user.getUserId());
-                userDetailMapDTO.setLatitude(company.getLatitude());
-                userDetailMapDTO.setLongitude(company.getLongitude());
-            }
-            userDetailMapDTOS.add(userDetailMapDTO);
-        }
-    }
+
 
     private ResponseEntity checkUserExistence(UserLoginDTO userLoginDTO, User user) {
         if (user == null) {
             return new ResponseEntity<>(MessageContent.LOGIN_ERROR, HttpStatus.BAD_REQUEST);
         }
-        if (validate(userLoginDTO, user.getEmail(), user.getPassword())) //validate(userLoginDTO, user.getEmail(), user.getPassword()))
+        if (validate(userLoginDTO, user.getEmail(), user.getPassword()))
         {
             ResponseEntity personDetailDTO = returnUserDetailsByRole(user);
             if (personDetailDTO != null)
@@ -258,17 +180,7 @@ public class UserController {
             return userLoginDTO.getPassword() == null || userLoginDTO.getPassword().isEmpty();
         }
     }
-    private Map<String, String> checkValidations(UserDTO userDTO) {
-        Set<ConstraintViolation<UserDTO>> violations = validator.validate(userDTO);
 
-        Map<String, String> validations = new HashMap<>();
-        for (ConstraintViolation<UserDTO> violation : violations) {
-            String propertyPath = violation.getPropertyPath().toString();
-            String message = violation.getMessage();
-            validations.put(propertyPath, message);
-        }
-        return validations;
-    }
 
     private boolean validate(UserLoginDTO userLoginDTO, String email, String password) {
         String encryptPwd = CryptPassword.encrypt(userLoginDTO.getPassword(), MessageContent.SECRET_KEY);
@@ -341,36 +253,6 @@ public class UserController {
         return companyDetailPracticeDTOS;
     }
 
-    private void setCompaniesPracticeInfos(List<CompanyDetailPracticeDTO> companyDetailsPracticeDtoList, DtoToEntity convertor) {
-        for (Company company : companyService.getAllCompanies()) {
-
-            List<String> materials = new ArrayList<>();
-            for (Material material : company.getMaterialList()) {
-                if (materialService.getMaterialByName(material.getMaterialName()) != null && !materials.contains(material.getMaterialName())) {
-                    materials.add(material.getMaterialName());
-                }
-            }
-            CompanyDetailPracticeDTO companyDetailPracticeDTO = convertor.convertorCompanyEntityToCompanyDetailPracticeDTO(company, materials);
-            User user = userService.getByCompanyId(company.getCompanyId());
-            companyDetailPracticeDTO.setId(user.getUserId());
-            companyDetailsPracticeDtoList.add(companyDetailPracticeDTO);
-        }
-    }
-
-    private boolean checkLatitudeAndLongitude(Double latitude, Double longitude) {
-        if (latitude == null || longitude == null) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean checkPersonExist(Person person) {
-        if (person == null) {
-            return true;
-        }
-        return false;
-    }
-
     private boolean checkCompanyExist(Company company) {
         if (company == null) {
             return true;
@@ -378,23 +260,5 @@ public class UserController {
         return false;
     }
 
-    private void removeUserWithLocationLoggedIn(@RequestParam Long id, List<CompanyDetailPracticeDTO> companyDetailPracticeDTOList, List<PersonNearbyDTO> personNearbyDTOS) {
-        Iterator companiesIterator = companyDetailPracticeDTOList.iterator();
-        CompanyDetailPracticeDTO companyDetailPracticeDTO;
-        while (companiesIterator.hasNext()) {
-            companyDetailPracticeDTO = (CompanyDetailPracticeDTO) companiesIterator.next();
-            if (companyDetailPracticeDTO.getId().equals(id)) {
-                companiesIterator.remove();
-            }
-        }
 
-        Iterator personIterator = personNearbyDTOS.iterator();
-        PersonNearbyDTO PersonNearbyDto;
-        while (personIterator.hasNext()) {
-            PersonNearbyDto = (PersonNearbyDTO) personIterator.next();
-            if (PersonNearbyDto.getId().equals(id)) {
-                personIterator.remove();
-            }
-        }
-    }
 }

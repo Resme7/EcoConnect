@@ -145,6 +145,7 @@ function CompanyPage() {
     if (user && user.id) {
       fetchCompanyDetails(user.companyId);
       getMaterialsByCompany(user.companyId)
+      getRequestsAccepted(user.id)
     }
   }, [user]);
 
@@ -155,18 +156,7 @@ function CompanyPage() {
     console.log('Specialized Materials Updated:', specializedMaterials);
   }, [specializedMaterials], user);
 
-  useEffect(() => {
-    if (user && user.id) {
-      getRequestsAccepted(user.id)
-        .then(response => {
-          setRequestsAccepted(response.data);
-          console.log('User requests accepted:', response.data);
-        })
-        .catch(error => {
-          console.error('Error fetching user requests:', error);
-        });
-    }
-  }, [user]);
+
 
   const handleLogout = () => {
     navigate('/');
@@ -205,7 +195,7 @@ function CompanyPage() {
       const dateRequestAccepted = requestDateTimes[requestId]?.getTime();
 
       if (dateRequestAccepted) {
-        acceptRequest(companyData.companyId, requestId, dateRequestAccepted).then(() => {
+        acceptRequest(user.id, requestId, dateRequestAccepted).then(() => {
           const updatedSelectedUserRequests = selectedUserRequests.filter(request => request.id !== requestId);
           const updatedRequestsOnHold = requestsOnHold.filter(request => request.id !== requestId);
           setSelectedUserRequests(updatedSelectedUserRequests);
@@ -343,10 +333,7 @@ console.log("Nearby Locations: ", nearbyLocations);
   }
   return null;
 })}
-
-
 </GoogleMap>
-
           </Container>
 
           { requestsAccepted && requestsAccepted.length > 0 && (

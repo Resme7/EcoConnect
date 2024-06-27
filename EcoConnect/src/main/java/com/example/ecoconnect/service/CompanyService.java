@@ -7,7 +7,6 @@ import java.util.List;
 
 @Service
 public interface CompanyService {
-    List<Company> getAllCompanies();
 
     Company getCompanyById(Long companyId);
 

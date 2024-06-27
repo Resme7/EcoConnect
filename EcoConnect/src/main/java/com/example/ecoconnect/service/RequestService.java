@@ -13,7 +13,6 @@ public interface RequestService {
     Request saveRequest(Request request);
 
     void deleteRequest(Long id);
-    List<Request> getAllByPersonIdMaterial(Long personId);
 
     List<Request> getAllByPersonId(Long id);
 
@@ -23,6 +22,6 @@ public interface RequestService {
 
     List<Request> getAllByPersonUserIdAndStatus(Long id, Status status);
 
-    List<Request> getAllByUserIdOrderByQuantity(Long id);
+
 }
 

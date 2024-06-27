@@ -13,9 +13,6 @@ import java.util.List;
 public interface RequestRepository extends JpaRepository<Request, Long> {
     Request findRequestById(Long requestId);
 
-    @Query("SELECT r FROM Request r JOIN FETCH r.material WHERE r.person.personId = :personId")
-    List<Request> findAllByPersonPersonIdWithMaterial(@Param("personId") Long personId);
-
     List<Request> findAllByPersonPersonId(Long personId);
 
     List<Request> findAllByPersonUserUserId(Long userId);
@@ -24,5 +21,4 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findAllByPersonUserUserIdAndStatus(Long userId, Status status);
 
-    List<Request> findAllByPersonUserUserIdOrderByQuantity(Long citizenId);
 }
