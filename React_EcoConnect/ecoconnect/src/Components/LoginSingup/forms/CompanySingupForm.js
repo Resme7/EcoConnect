@@ -7,10 +7,10 @@ import * as yup from 'yup';
 const companySchema = yup.object().shape({
   companyName: yup.string().required('Company name is required'),
   descriptionCompany: yup.string().required('Description is required'),
-  email: yup.string().email('Invalid email address').required('Email is required'),
+  email: yup.string().email(/([a-zA-Z0-9]+)[@]([a-z]+)[.]([a-z]+)*$/,'Invalid email address').required('Email is required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password is required'),
   street: yup.string().required('Street is required'),
-  number: yup.string().required('Number is required'),
+  number: yup.string() .required('Number is required'),
   building: yup.string().matches(/[a-zA-Z0-9-]*$/).required('Building is required'),
   entrance: yup.string().required('Entrance is required'),
   apartNumber: yup.string().required('Apartment number is required'),

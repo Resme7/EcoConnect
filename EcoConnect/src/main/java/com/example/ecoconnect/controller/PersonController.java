@@ -93,12 +93,14 @@ public class PersonController  {
         user.setRole(Role.Person);
     }
 
+    ///verificam daca emailul este unic
     private void checkEmailUnicity(PersonDTO personDTO, Map<String, String> validations) {
         if (userService.getByEmail(personDTO.getEmail()) != null) {
             validations.put("email", "This email is already used");
         }
     }
 
+    ///verificam daca nr de telefon e unic
     private void checkPhoneNumberUnicity(PersonDTO personDTO, Map<String, String> validations) {
         if (personService.getPersonByPhoneNumberPerson(personDTO.getNumberPhone()) != null) {
             validations.put("personPhoneNumber", "This phone number is already used");

@@ -42,7 +42,6 @@ public class CompanyController {
             ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
             validator = validatorFactory.getValidator();
         }
-
         @PostMapping
         public ResponseEntity saveCompany(@RequestBody @Valid CompanyDTO companyDTO, BindingResult bindingResult){
                 User user= new User();
@@ -83,6 +82,7 @@ public class CompanyController {
                 }
         }
 
+        //companiile si materialele pe care sunt specializate
         @GetMapping(value = "/{id}/company-materials")
         public ResponseEntity<?> getCompanyByMaterialName(@PathVariable Long id) {
                 Company company = companyService.getCompanyById(id);
@@ -95,6 +95,8 @@ public class CompanyController {
                         return new ResponseEntity<>(materialIds, HttpStatus.OK);
                 }
         }
+
+        //firmele dupa numele materialelor
         @GetMapping("/material/{materialName}")
         public ResponseEntity<List<Long>> getCompaniesByMaterialName(@PathVariable String materialName) {
                  List<Long> companies = companyService.getCompanyByMaterialName(materialName);
@@ -105,6 +107,7 @@ public class CompanyController {
                 }
         }
 
+        //toate requesturile cu statusul processing sau completed
         @GetMapping(value = "/{id}/accepted-request")
         public ResponseEntity getAllRequestAccepted(@PathVariable Long id) {
                 Company company = companyService.getByUserId(id);
@@ -145,7 +148,7 @@ public class CompanyController {
                 user.setRole(Role.Company);
         }
 
-
+        ///bag materialele in lista
         private void processMaterialList(CompanyDTO companyDTO, List<Material> materials){
                 for(String name : companyDTO.getMaterialName()){
                         Material material = materialService.getMaterialByName(name);
@@ -160,6 +163,7 @@ public class CompanyController {
                 }
         }
 
+        ///validam constrangerile pe care le avem in companydto
         private Map<String, String> checkValidations(CompanyDTO companyDTO) {
                 Set<ConstraintViolation<CompanyDTO>> violations = validator.validate(companyDTO);
 
@@ -175,18 +179,19 @@ public class CompanyController {
                 return validations;
         }
 
+        ///verificam daca emailul este unic///
         private void checkEmailUnicity(CompanyDTO companyDTO, Map<String, String> validations) {
                 if (userService.getByEmail(companyDTO.getEmail()) != null) {
                         validations.put("email", "This email is already used");
                 }
         }
-
+        ///verificam daca numarul de telefon este unic
         private void checkPhoneNumberUnicity(CompanyDTO companyDTO, Map<String, String> validations) {
                 if (companyService.getCompanyByNumberPhone(companyDTO.getCompanyNumberPhone()) != null) {
                         validations.put("companyPhoneNumber", "This phone number is already used");
                 }
         }
-
+        ///verificam daca codul companiei este unic
         private void checkCompanyCodeUnicity(CompanyDTO companyDTO, Map<String, String> validations) {
                 if (companyService.getCompanyByCompanyCode(companyDTO.getCompanyCode()) != null) {
                         validations.put("uniqueCode", "This UIC number is already used");

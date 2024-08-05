@@ -17,7 +17,7 @@ import completed from '../Assets/approved.png';
 import '../Pages/style/General_page.css';
 import { fetchCompanyById, fetchMaterialsByCompany, fetchMaterialById } from '../Pages/Service/Service';
 import { getNearbyUsersForCompany } from '../Pages/Service/userService';
-import { getAllRequestsOnHold, getAllRequestsByUserId, acceptRequest, deleteRequest, finishRequest } from '../Pages/Service/requestService';
+import { getAllRequestsOnHold, getAllRequestsByUserId, acceptRequest,  finishRequest } from '../Pages/Service/requestService';
 import { fetchRequestsAccepted } from '../Pages/Service/Service';
 import { useUser } from '../Pages/util/UserContext';
 import companyPin from '../Assets/company-pin.png';
@@ -103,7 +103,6 @@ function CompanyPage() {
         if (location.role === "Person") {
           try {
             const res = await getAllRequestsOnHold(location.id);
-            console.log("reqhold", res.data)
             const requestsOnHold = res.data;
             console.log("req22", requestsOnHold)
             console.log("specialite", specializedMaterials)
@@ -138,8 +137,6 @@ function CompanyPage() {
     }
   };
 
-  
-  
 
   useEffect(() => {
     if (user && user.id) {
@@ -155,8 +152,6 @@ function CompanyPage() {
     }
     console.log('Specialized Materials Updated:', specializedMaterials);
   }, [specializedMaterials], user);
-
-
 
   const handleLogout = () => {
     navigate('/');
@@ -212,15 +207,6 @@ function CompanyPage() {
     }
   };
 
-  const handleDeleteRequest = (requestId) => {
-    deleteRequest(requestId).then(() => {
-      setSelectedUserRequests(selectedUserRequests.filter(request => request.id !== requestId));
-      setRequestsOnHold(requestsOnHold.filter(request => request.id !== requestId));
-      setDialogOpen(false);
-    }).catch(error => {
-      console.error('Error deleting request:', error);
-    });
-  };
 
   const handleFinishRequest = (requestId) => {
     finishRequest(requestId).then(() => {
@@ -334,9 +320,10 @@ console.log("Nearby Locations: ", nearbyLocations);
   return null;
 })}
 </GoogleMap>
-          </Container>
+</Container>
 
-          { requestsAccepted && requestsAccepted.length > 0 && (
+<Container>
+{ requestsAccepted && requestsAccepted.length > 0 && (
             <div style={{ marginTop: '20px' }}>
               <Typography variant="h6" align="center">Requests Accepted:</Typography>
               <TableContainer component={Paper} className="table-container">
@@ -345,6 +332,7 @@ console.log("Nearby Locations: ", nearbyLocations);
                     <TableHead>
                       <TableRow>
                         <TableCell>Material</TableCell>
+                        <TableCell>Date Collection</TableCell>
                         <TableCell>Quantity</TableCell>
                         <TableCell>Unit</TableCell>
                         <TableCell>Status</TableCell>
@@ -355,6 +343,7 @@ console.log("Nearby Locations: ", nearbyLocations);
                       {requestsAccepted.map(request => (
                         <TableRow key={request.id}>
                           <TableCell>{request.materialName}</TableCell>
+                          <TableCell>{format(new Date(request.dateCollection), 'dd/MM/yyyy HH:mm')}</TableCell>
                           <TableCell>{request.quantity}</TableCell>
                           <TableCell>{request.unit}</TableCell>
                           <TableCell>
@@ -374,6 +363,8 @@ console.log("Nearby Locations: ", nearbyLocations);
               </TableContainer>
             </div>
           )}
+</Container>
+          
 
           {selectedUser && filteredRequestsOnHold.length > 0 && (
             <div style={{ marginTop: '20px' }}>
@@ -408,7 +399,6 @@ console.log("Nearby Locations: ", nearbyLocations);
                           </TableCell>
                           <TableCell>
                             <Button onClick={() => handleAcceptRequest(request.id)}>Accept</Button>
-                            <Button onClick={() => handleDeleteRequest(request.id)}>Delete</Button>
                           </TableCell>
                         </TableRow>
                       ))}

@@ -15,7 +15,6 @@ public interface PersonRepository extends JpaRepository<Person, Long> {
     Person findByPhoneNumberPerson(String phoneNumberPerson);
 
     Person findByUserUserId(Long userId);
-    List<Person> findByPersonAddress(String personAddress);
-    @Query("select distinct p from Person p join p.requestList r where r.status = :status")
+    @Query("select  p from Person p join p.requestList r where r.status = :status")
     List<Person> findAllPersonByRequestStatus(Status status);
 }

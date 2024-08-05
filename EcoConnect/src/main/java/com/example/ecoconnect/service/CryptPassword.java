@@ -28,6 +28,8 @@ public class CryptPassword {
     public static String encrypt(String strToEncrypt, String secret) {
         try {
             setKey(secret);
+            //electronic codebook - fiecare bloc text e criptat intr un bloc de text criptat
+            // pkcs5padding - asigura ca dim datelor e un multiplu al dim blocului necesar
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
             return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));

@@ -4,7 +4,7 @@ import { useUser } from '../Pages/util/UserContext';
 import './style/Login.css';
 import email_icon from '../Assets/email.png';
 import password_icon from '../Assets/password.png';
-import { fetchRequestByCompanyId } from '../Pages/Service/Service';
+
 
 function Login() {
     const [error, setError] = useState('');

@@ -206,6 +206,8 @@ public class RequestController {
                         return new ResponseEntity<>(requestsListDTOS, HttpStatus.OK);
                 }
         }
+
+        ///verifc requesturile dupa statusul on hold
         private ResponseEntity verifyRequestsOnHold(Long id, List<RequestListDTO> requestListDTOS, DtoToEntity convertor) {
                 List<Request> requestList = requestService.getAllByPersonUserIdAndStatus(id, Status.ON_HOLD);
                 if (requestList == null || requestList.size() == 0) {
@@ -218,6 +220,7 @@ public class RequestController {
                 }
                 return new ResponseEntity<>(requestListDTOS, HttpStatus.OK);
         }
+        //din statusul on hold il fac processing daca data este inaintea datei de creare a cererii
         private ResponseEntity updateRequestOnHoldMethod(List<RequestOnHoldDTO> requestOnHoldDTOList, Company company) {
                 Map<String, String> dateError = new HashMap<>();
                 for (RequestOnHoldDTO requestOnHoldDto : requestOnHoldDTOList) {
@@ -248,6 +251,7 @@ public class RequestController {
                 return new ResponseEntity<>(requestUpdatedMessage, HttpStatus.OK);
         }
 
+        ///verific requesturile onhold
         private void checkRequestsOnHoldField(List<RequestOnHoldDTO> requestOnHoldDTOList, Map<String, String> validations) {
                 for (int i = 0; i < requestOnHoldDTOList.size(); i++) {
                         RequestOnHoldDTO requestOnHoldDto = requestOnHoldDTOList.get(i);
@@ -260,6 +264,7 @@ public class RequestController {
                         }
                 }
         }
+        ///verific requesturile accepted
         private void checkRequestsAcceptedField(RequestAcceptedDTO requestAcceptedDTO, Map<String, String> validations) {
                 Set<ConstraintViolation<RequestAcceptedDTO>> violations = validator.validate(requestAcceptedDTO);
 
@@ -270,6 +275,7 @@ public class RequestController {
                 }
         }
 
+        ///actualizeaza requestul in processing din baza de date
         private ResponseEntity updateRequestAcceptedMethod(RequestAcceptedDTO requestAcceptedDto) {
                 Request requestFromDb = requestService.getRequestById(requestAcceptedDto.getId());
                 if (requestFromDb == null) {

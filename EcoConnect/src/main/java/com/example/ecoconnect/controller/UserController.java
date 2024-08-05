@@ -111,9 +111,6 @@ public class UserController {
         return new ResponseEntity<>(nearbyCompanies, HttpStatus.OK);
     }
 
-
-
-
     @GetMapping(value = "/nearby-users-for-company/{id}")
     public ResponseEntity getNearbyUsersForCompany(@PathVariable Long id) {
         Company company = companyService.getByUserId(id);
